@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Apprends JavaScript, Python et C# par leçons de 3 minutes, avec des mini-jeux.">
+<meta name="theme-color" content="#f1f4fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1226" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Déclic Code">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Déclic Code</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout : une seule colonne étroite façon application, une seule chose à faire par écran. */
+:root{
+  --bg:#f1f4fb; --surface:#ffffff; --ink:#141a33; --muted:#566080; --line:#d6dcee; --soft:#e6eaf6;
+  --code-bg:#121831; --code-fg:#e8ecfb; --code-key:#ffb86b; --code-str:#9be28f; --code-num:#8fd3ff; --code-com:#8c95b8;
+  --ok:#157a43; --ok-bg:#dff5e8; --bad:#b93127; --bad-bg:#fbe4e1; --gold:#c98a00;
+  --js:#f2c230; --js-on:#221b00; --py:#2c6cb5; --py-on:#ffffff; --cs:#7440cf; --cs-on:#ffffff;
+  --lang:var(--py); --on-lang:var(--py-on);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1226; --surface:#182040; --ink:#eef1fc; --muted:#a4adcf; --line:#2e3962; --soft:#222c52;
+  --code-bg:#080c1c; --ok:#5fd693; --ok-bg:#123524; --bad:#ff8d82; --bad-bg:#44191a; --gold:#ffc94a;
+  --py:#5a9be6; --py-on:#06162b; --cs:#a47cf2; --cs-on:#140a2e; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0d1226; --surface:#182040; --ink:#eef1fc; --muted:#a4adcf; --line:#2e3962; --soft:#222c52;
+  --code-bg:#080c1c; --ok:#5fd693; --ok-bg:#123524; --bad:#ff8d82; --bad-bg:#44191a; --gold:#ffc94a;
+  --py:#5a9be6; --py-on:#06162b; --cs:#a47cf2; --cs-on:#140a2e; color-scheme:dark }
+.lang-js{--lang:var(--js);--on-lang:var(--js-on)}
+.lang-py{--lang:var(--py);--on-lang:var(--py-on)}
+.lang-cs{--lang:var(--cs);--on-lang:var(--cs-on)}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+#app{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.35rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--lang);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em;background:var(--soft);padding:.1em .35em;border-radius:5px;overflow-wrap:anywhere}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.label{font-size:.76rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--muted)}
+
+/* Barre du haut */
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;margin-right:auto}
+.brand b{background:var(--lang);color:var(--on-lang);padding:.05em .4em;border-radius:6px;margin-right:.3em}
+.chip{font-size:.85rem;font-weight:700;border:1.5px solid var(--line);border-radius:999px;padding:.25em .8em;background:var(--surface);font-variant-numeric:tabular-nums}
+.chip.btnlike{cursor:pointer}
+.xp{display:flex;flex-direction:column;gap:6px}
+.xp .row{display:flex;justify-content:space-between;font-size:.88rem;font-weight:700;font-variant-numeric:tabular-nums}
+.bar{height:12px;border-radius:999px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lang);border-radius:999px;transition:width .35s ease}
+
+/* Choix du langage */
+.langs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.langbtn{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+.langbtn strong{font-family:var(--display);font-size:1.05rem}
+.langbtn span{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.langbtn[aria-pressed="true"]{background:var(--lang);color:var(--on-lang);border-color:var(--lang)}
+.langbtn[aria-pressed="true"] span{color:inherit}
+
+/* Boutons */
+.btn{background:var(--lang);color:var(--on-lang);border:0;border-radius:14px;padding:14px 20px;font-weight:700;font-size:1.05rem;width:100%;box-shadow:0 4px 0 color-mix(in srgb,var(--lang) 60%,#000)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--lang) 60%,#000)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.cta{text-align:left;display:flex;flex-direction:column;gap:2px}
+.cta small{font-weight:400;font-size:.88rem;opacity:.85}
+.rowbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.rowbtns{grid-template-columns:1fr}}
+
+/* Liste des leçons */
+.path{display:flex;flex-direction:column;gap:8px}
+.lesson{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;width:100%}
+.lesson .num{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--soft)}
+.lesson.done .num{background:var(--lang);color:var(--on-lang)}
+.lesson .name{flex:1;min-width:0;font-weight:700}
+.lesson .meta{flex:none;font-size:.85rem;color:var(--muted)}
+.stars{color:var(--gold);letter-spacing:.1em;font-size:1rem}
+.lesson.next{border-color:var(--lang);border-width:2.5px}
+
+details{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+summary{font-weight:700;cursor:pointer}
+details ol,details ul{margin:.6em 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:.4em}
+
+/* Écran de leçon */
+.lessonbar{display:flex;align-items:center;gap:10px}
+.lessonbar .bar{flex:1}
+.quit{background:none;border:0;font-size:.9rem;font-weight:700;color:var(--muted);padding:6px 2px}
+.combo{font-size:.85rem;font-weight:700;color:var(--gold);min-width:5.5em;text-align:right;font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;animation:in .22s ease}
+@keyframes in{from{transform:translateY(8px)}to{transform:none}}
+.kind{font-size:.76rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--muted)}
+.q{font-size:1.2rem}
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--mono);font-size:.9rem;line-height:1.6;padding:14px 16px;border-radius:12px;overflow-x:auto;max-width:100%}
+.tk{color:var(--code-key)} .ts{color:var(--code-str)} .tn{color:var(--code-num)} .tc{color:var(--code-com)}
+.slot{display:inline-block;min-width:2.6em;text-align:center;border:2px dashed var(--code-key);border-radius:6px;color:var(--code-key);padding:0 .4em}
+.out{border:1.5px dashed var(--line);border-radius:12px;padding:10px 14px;font-family:var(--mono);font-size:.9rem;white-space:pre-wrap}
+.out::before{content:"Ce qui s’affiche";display:block;font-family:var(--body);font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--muted);margin-bottom:4px}
+.tip{background:var(--soft);border-radius:12px;padding:10px 14px;font-size:.95rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:460px){.opts:not(.two){grid-template-columns:1fr}}
+.opt{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px;text-align:left;min-width:0;font-weight:700}
+.opt.mono{font-family:var(--mono);font-size:.92rem;font-weight:400}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+.key{flex:none;width:24px;height:24px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-family:var(--body);font-size:.78rem;font-weight:700;color:var(--muted)}
+.opt:not(:disabled):hover,.line:not(:disabled):hover{border-color:var(--lang)}
+.opt.good,.line.good{border-color:var(--ok);background:var(--ok-bg)}
+.opt.bad,.line.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled,.line:disabled{cursor:default}
+.lines{display:flex;flex-direction:column;gap:8px}
+.line{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:9px 12px;text-align:left;min-width:0;overflow-x:auto}
+.line code{background:none;padding:0;white-space:pre;font-size:.86rem;overflow-wrap:normal;color:var(--ink)}
+.line .tk{color:var(--lang-ink,var(--ink));font-weight:700} .line .ts{color:var(--ok)} .line .tn{color:var(--ink)} .line .tc{color:var(--muted)}
+.ln{flex:none;font-size:.78rem;font-weight:700;color:var(--muted);width:1.2em;font-variant-numeric:tabular-nums}
+.codein{width:100%;font-family:var(--mono);font-size:1rem;padding:13px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.codein:focus{outline:3px solid var(--lang);outline-offset:1px}
+.codein.good{border-color:var(--ok);background:var(--ok-bg)} .codein.bad{border-color:var(--bad);background:var(--bad-bg)}
+.symkeys{display:flex;flex-wrap:wrap;gap:6px}
+.sym{font-family:var(--mono);font-size:1rem;min-width:40px;height:40px;border:1.5px solid var(--line);border-radius:9px;background:var(--soft)}
+.answer{min-height:56px;border:2px dashed var(--line);border-radius:12px;padding:8px}
+.answer.good{border-color:var(--ok)} .answer.bad{border-color:var(--bad)}
+.hint{color:var(--muted);font-size:.92rem;padding:6px}
+.fb{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--bad-bg)}
+.fb h3{font-size:1.1rem}
+.fb.ok h3{color:var(--ok)} .fb.ko h3{color:var(--bad)}
+
+/* Fin de leçon */
+.end{text-align:center;align-items:center}
+.end .stars{font-size:2.6rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.stat{background:var(--soft);border-radius:12px;padding:10px 6px}
+.stat b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+.timer{font-family:var(--display);font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<canvas id="confetti" hidden></canvas>
+<div id="app"></div>
+
+<script>
+/* ========================= CONTENU ========================= */
+// Exercices. La première option est toujours la bonne réponse (elles sont mélangées à l’affichage).
+const q=(qu,c,o,w)=>({t:'q',q:qu,c,o,w});      // choix multiple
+const t=(qu,c,o,w)=>({t:'t',q:qu,c,o,w});      // compléter le trou ___
+const v=(qu,c,a,w)=>({t:'v',q:qu,c,a,w});      // vrai ou faux
+const b=(qu,l,a,w)=>({t:'b',q:qu,l,a,w});      // trouver la ligne avec l’erreur
+const o=(qu,l,w)=>({t:'o',q:qu,l,w});          // remettre les lignes dans l’ordre
+const w=(qu,c,ok,why)=>({t:'w',q:qu,c,ok,w:why}); // écrire une ligne de code (ok = réponses acceptées)
+
+const LANGS={js:'JavaScript',py:'Python',cs:'C#'};
+const TITLES=['Afficher un message','Les variables','Les types de valeurs','Les calculs','Texte et variables','Les conditions','Les boucles','Les listes','Les fonctions'];
+
+// Carte d’introduction commune aux trois langages, une par leçon.
+const INTRO=[
+ {h:'Un programme, c’est une recette',p:['Un programme est une liste d’instructions. L’ordinateur les lit une par une, de haut en bas, comme on suit une recette de cuisine.','La toute première instruction à connaître : afficher un message à l’écran.']},
+ {h:'Une variable, c’est une boîte',p:['Une variable est une boîte avec une étiquette. L’étiquette, c’est son **nom**. Dans la boîte, il y a une **valeur**.','On peut regarder ce qu’il y a dedans, ou remplacer la valeur par une autre.','Attention : en programmation, le signe `=` ne veut pas dire « est égal à ». Il veut dire « range cette valeur dans la boîte ».']},
+ {h:'Trois familles de valeurs',p:['Toutes les valeurs n’ont pas la même nature. Il y a trois grandes familles :','**Les nombres** : 25 ou 9.99 (on écrit un point, pas une virgule).','**Le texte** : toujours entre guillemets, comme "Léa". On appelle ça une chaîne de caractères.','**Les booléens** : seulement deux valeurs possibles, vrai ou faux.']},
+ {h:'L’ordinateur est une calculatrice',p:['Les signes de calcul : `+` additionne, `-` soustrait, `*` multiplie, `/` divise.','Le signe `%` donne le **reste** d’une division. Exemple : `7 % 2` vaut 1, car 7 = 3 × 2 + 1.','Comme en maths, les multiplications et les divisions passent avant les additions : `2 + 3 * 4` vaut 14, pas 20.']},
+ {h:'Mettre une variable dans une phrase',p:['Souvent, on veut afficher une phrase qui contient la valeur d’une variable : « Bonjour Léa », « Score : 12 ».','Il y a deux façons : coller les morceaux avec `+`, ou écrire un texte à trous que l’ordinateur remplit tout seul.']},
+ {h:'Une condition, c’est un aiguillage',p:['Jusqu’ici, le programme exécutait toutes les lignes. Avec une condition, il choisit : **si** quelque chose est vrai, il fait une chose, **sinon** il en fait une autre.','Exemple de la vie : s’il pleut, je prends un parapluie, sinon je prends mes lunettes de soleil.']},
+ {h:'Une boucle répète à ta place',p:['Pour afficher 100 fois un message, on ne recopie pas 100 lignes. On écrit une **boucle** : un bloc de code que l’ordinateur répète.','Deux sortes de boucles : `for` quand on sait combien de fois répéter, `while` pour répéter **tant qu’**une condition est vraie.']},
+ {h:'Une liste range plusieurs valeurs',p:['Une variable contient une seule valeur. Une **liste** en contient plusieurs, rangées dans l’ordre, comme les wagons d’un train.','Chaque valeur a un numéro de place, appelé **index**. Piège très connu : on compte à partir de **0**. Le premier élément est à l’index 0, le deuxième à l’index 1.']},
+ {h:'Une fonction, c’est une machine',p:['Une fonction est un morceau de code auquel on donne un nom, pour le réutiliser autant de fois qu’on veut.','Imagine une machine : on lui donne des ingrédients (les **paramètres**), elle travaille, puis elle **renvoie** un résultat.','Deux étapes à ne pas confondre : **créer** la fonction (on construit la machine) et **appeler** la fonction (on appuie sur le bouton). Une fonction jamais appelée ne fait rien.']}
+];
+
+const DATA={
+/* ---------------- JAVASCRIPT ---------------- */
+js:[
+ {cards:[
+  {h:'Afficher avec console.log',p:['Pour afficher un message, on écrit `console.log`, puis le message entre parenthèses.','Le texte se met toujours entre guillemets. On termine l’instruction par un point-virgule.'],code:['console.log("Bonjour !");'],out:['Bonjour !']},
+  {h:'Les commentaires',p:['Une ligne qui commence par `//` est un commentaire : une note pour les humains. L’ordinateur l’ignore complètement.'],code:['// Cette ligne est ignorée','console.log("Celle-ci est exécutée");'],out:['Celle-ci est exécutée']}],
+ ex:[
+  q('Que va afficher ce code ?',['console.log("Salut");'],['Salut','"Salut"','console.log','Rien du tout'],'Les guillemets servent à délimiter le texte dans le code. Ils ne sont pas affichés.'),
+  t('Complète pour afficher Coucou.',['console.___("Coucou");'],['log','print','write','show'],'En JavaScript, l’instruction pour afficher est `console.log`.'),
+  b('Une ligne contient une erreur. Laquelle ?',['console.log("Un");','console.log(Deux);','console.log("Trois");'],1,'Il manque les guillemets autour de Deux. Sans guillemets, l’ordinateur croit que Deux est un nom de variable, et cette variable n’existe pas.'),
+  o('Remets les lignes dans l’ordre pour afficher 1, puis 2, puis 3.',['console.log("1");','console.log("2");','console.log("3");'],'L’ordinateur exécute les lignes de haut en bas.'),
+  q('Que va afficher ce code ?',['// console.log("A");','console.log("B");'],['B','A','A puis B','Rien du tout'],'La première ligne commence par `//` : c’est un commentaire, elle est ignorée.'),
+  v('L’ordinateur exécute les instructions de haut en bas, dans l’ordre où elles sont écrites.',null,true,'Oui, exactement comme une recette qu’on suit étape par étape.')]},
+
+ {cards:[
+  {h:'Créer une variable avec let',p:['Le mot `let` crée la boîte. On écrit ensuite son nom, le signe `=`, puis la valeur à ranger dedans.','Pour utiliser la valeur, on écrit simplement le nom de la variable, **sans guillemets**.'],code:['let age = 25;','console.log(age);'],out:['25']},
+  {h:'Changer la valeur',p:['Pour remplacer la valeur, on réécrit le nom, le signe `=` et la nouvelle valeur. Pas besoin de répéter `let`.','Si la valeur ne doit jamais changer, on crée la variable avec `const` à la place de `let`.'],code:['let score = 10;','score = 20;','console.log(score);'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['let score = 10;','score = 20;','console.log(score);'],['20','10','30','score'],'La deuxième ligne remplace 10 par 20 dans la boîte score.'),
+  t('Complète pour créer la variable prenom.',['___ prenom = "Léa";'],['let','variable','box','make'],'`let` est le mot qui crée une variable en JavaScript.'),
+  q('Que va afficher ce code ?',['let ville = "Paris";','console.log("ville");'],['ville','Paris','"Paris"','Une erreur'],'Avec des guillemets, "ville" est un simple texte. Pour afficher le contenu de la variable, il faut écrire ville sans guillemets.'),
+  b('Une ligne contient une erreur. Laquelle ?',['let points = 5;','points = 8;','console.log(point);'],2,'La variable s’appelle points, avec un s. Le nom doit être écrit exactement pareil partout.'),
+  v('Avec const, on peut donner une nouvelle valeur à la variable plus tard (par exemple score = 20).',null,false,'Une variable créée avec `const` garde sa valeur pour toujours. Essayer de la changer provoque une erreur.')]},
+
+ {cards:[
+  {h:'Les trois familles en JavaScript',p:['En JavaScript, vrai s’écrit `true` et faux s’écrit `false`, sans guillemets.'],code:['let age = 25;','let prix = 9.99;','let prenom = "Léa";','let majeur = true;']},
+  {h:'Le piège du texte',p:['Entre deux nombres, `+` additionne. Entre deux textes, `+` les colle bout à bout.','"2" avec des guillemets est un texte, pas un nombre.'],code:['console.log(2 + 3);','console.log("2" + "3");'],out:['5','23']}],
+ ex:[
+  q('Quelle est la famille de la valeur true ?',null,['Booléen','Nombre','Texte','Commentaire'],'Un booléen ne peut valoir que `true` (vrai) ou `false` (faux).'),
+  q('Que va afficher ce code ?',['console.log("2" + "3");'],['23','5','2 + 3','Une erreur'],'Ce sont deux textes : `+` les colle bout à bout.'),
+  q('Que va afficher ce code ?',['console.log(2 + 3);'],['5','23','2 + 3','Une erreur'],'Ce sont deux nombres : `+` les additionne.'),
+  q('Laquelle de ces valeurs est un texte ?',null,['"42"','42','true','4.2'],'Ce qui est entre guillemets est toujours un texte, même si ça ressemble à un nombre.'),
+  v('Dans le code, un nombre à virgule s’écrit avec un point : 9.99',null,true,'Oui. La virgule sert à autre chose dans le code, on utilise donc le point.')]},
+
+ {cards:[
+  {h:'Calculer en JavaScript',p:['La division donne un résultat à virgule quand il le faut : `7 / 2` vaut 3.5.'],code:['console.log(7 / 2);','console.log(7 % 2);','console.log(2 + 3 * 4);'],out:['3.5','1','14']},
+  {h:'Modifier une variable avec un calcul',p:['`score = score + 5` se lit de droite à gauche : on prend la valeur actuelle, on ajoute 5, puis on range le résultat dans la même boîte.','`score += 5` fait exactement la même chose, en plus court.'],code:['let score = 10;','score = score + 5;','score += 5;','console.log(score);'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['console.log(2 + 3 * 4);'],['14','20','24','9'],'La multiplication passe en premier : 3 × 4 = 12, puis 2 + 12 = 14.'),
+  q('Que va afficher ce code ?',['console.log(7 % 2);'],['1','3.5','3','0'],'`%` donne le reste de la division : 7 = 3 × 2 + 1, il reste 1.'),
+  q('Que va afficher ce code ?',['let s = 10;','s += 5;','console.log(s);'],['15','10','5','105'],'`s += 5` ajoute 5 à la valeur actuelle : 10 + 5 = 15.'),
+  t('On veut que moitie vaille 5. Quel signe faut-il ?',['let moitie = 10 ___ 2;'],['/','*','%','-'],'10 divisé par 2 donne 5. Le signe de la division est `/`.'),
+  q('Que va afficher ce code ?',['console.log(7 / 2);'],['3.5','3','4','1'],'En JavaScript, la division garde la partie après la virgule.')]},
+
+ {cards:[
+  {h:'Coller avec +',p:['Le signe `+` colle un texte et une variable. Pense à mettre l’espace à l’intérieur des guillemets, sinon les mots seront collés.'],code:['let prenom = "Léa";','console.log("Bonjour " + prenom);'],out:['Bonjour Léa']},
+  {h:'Le texte à trous',p:['On entoure le texte avec des **accents graves** à la place des guillemets (sur un clavier français Windows : AltGr + 7).','À l’intérieur, `${nom}` est remplacé par la valeur de la variable.'],code:['let age = 20;','console.log(`Tu as ${age} ans`);'],out:['Tu as 20 ans']}],
+ ex:[
+  q('Que va afficher ce code ?',['let p = "Tom";','console.log("Salut " + p);'],['Salut Tom','Salut p','SalutTom','Salut + Tom'],'`+` colle le texte "Salut " (avec son espace) et la valeur de p.'),
+  q('Que va afficher ce code ?',['let age = 20;','console.log(`Tu as ${age} ans`);'],['Tu as 20 ans','Tu as ${age} ans','Tu as age ans','Une erreur'],'Entre accents graves, `${age}` est remplacé par la valeur de age.'),
+  q('Attention aux guillemets. Que va afficher ce code ?',['let age = 20;','console.log("Tu as ${age} ans");'],['Tu as ${age} ans','Tu as 20 ans','Tu as age ans','Une erreur'],'Avec des guillemets normaux, rien n’est remplacé. Le remplacement ne marche qu’avec les accents graves.'),
+  t('Complète pour afficher la valeur de score.',['let score = 12;','console.log(`Score : ___`);'],['${score}','{score}','$score','(score)'],'La forme complète est un dollar puis des accolades : `${score}`.'),
+  q('Que va afficher ce code ?',['console.log("Age : " + 25);'],['Age : 25','Age : + 25','25','Une erreur'],'JavaScript transforme tout seul le nombre 25 en texte pour le coller.')]},
+
+ {cards:[
+  {h:'if et else',p:['Entre parenthèses : la question posée. Entre accolades `{ }` : ce qu’il faut faire si la réponse est oui.','Après `else` (sinon) : ce qu’il faut faire si la réponse est non.'],code:['let age = 18;','if (age >= 18) {','  console.log("Majeur");','} else {','  console.log("Mineur");','}'],out:['Majeur']},
+  {h:'Poser une question',p:['`>` plus grand, `<` plus petit, `>=` plus grand ou égal, `<=` plus petit ou égal.','`===` teste si deux valeurs sont égales. `!==` teste si elles sont différentes.','Ne confonds pas : un seul `=` range une valeur dans une boîte, trois `===` posent une question.']},
+  {h:'Plus de deux chemins',p:['Avec `else if` (sinon si), on ajoute d’autres questions. L’ordinateur s’arrête à la première réponse vraie et ignore la suite.'],code:['let t = 20;','if (t > 30) {','  console.log("Chaud");','} else if (t > 15) {','  console.log("Doux");','} else {','  console.log("Froid");','}'],out:['Doux']}],
+ ex:[
+  q('Que va afficher ce code ?',['let note = 12;','if (note >= 10) {','  console.log("Réussi");','} else {','  console.log("Raté");','}'],['Réussi','Raté','Réussi puis Raté','Rien du tout'],'12 est plus grand ou égal à 10 : la condition est vraie, on exécute le premier bloc seulement.'),
+  t('On veut tester si age est égal à 18.',['if (age ___ 18) {'],['===','=','<>','!=='],'`===` pose la question « est-ce égal ? ». Un seul `=` rangerait 18 dans age.'),
+  q('Que va afficher ce code ?',['let t = 5;','if (t > 30) {','  console.log("Chaud");','} else if (t > 15) {','  console.log("Doux");','} else {','  console.log("Froid");','}'],['Froid','Doux','Chaud','Rien du tout'],'5 n’est pas plus grand que 30, ni plus grand que 15. On arrive donc dans le else.'),
+  q('Que va afficher ce code ?',['console.log(5 > 3);'],['true','false','5','2'],'Une comparaison donne un booléen. 5 est bien plus grand que 3, donc `true`.'),
+  o('S’il pleut, on affiche Parapluie, sinon Lunettes. Remets les lignes dans l’ordre.',['let pluie = true;','if (pluie === true) {','  console.log("Parapluie");','} else {','  console.log("Lunettes");','}'],'On crée d’abord la variable, puis on pose la question, puis vient le cas « oui », et enfin le cas « sinon ».')]},
+
+ {cards:[
+  {h:'La boucle for',p:['Entre parenthèses, trois morceaux séparés par des points-virgules :','`let i = 1` : on démarre un compteur à 1.','`i <= 3` : on continue tant que le compteur ne dépasse pas 3.','`i++` : après chaque tour, on ajoute 1 au compteur.'],code:['for (let i = 1; i <= 3; i++) {','  console.log(i);','}'],out:['1','2','3']},
+  {h:'La boucle while',p:['`while` répète le bloc tant que la condition est vraie.','Il faut que quelque chose change à chaque tour (ici n diminue). Sinon la condition reste vraie pour toujours et la boucle ne s’arrête jamais.'],code:['let n = 3;','while (n > 0) {','  console.log(n);','  n = n - 1;','}'],out:['3','2','1']}],
+ ex:[
+  q('Combien de fois Hop va-t-il s’afficher ?',['for (let i = 0; i < 4; i++) {','  console.log("Hop");','}'],['4 fois','3 fois','5 fois','1 fois'],'Le compteur vaut 0, 1, 2 puis 3 : ça fait 4 tours. À 4, la condition i < 4 devient fausse.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (let i = 1; i <= 3; i++) {','  console.log(i);','}'],['1 2 3','0 1 2','1 2 3 4','3 3 3'],'Le compteur démarre à 1 et s’arrête après 3.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['let n = 3;','while (n > 0) {','  console.log(n);','  n = n - 1;','}'],['3 2 1','3 2 1 0','1 2 3','3 3 3 sans fin'],'On affiche n puis on enlève 1. Quand n vaut 0, la condition n > 0 est fausse : on s’arrête sans afficher 0.'),
+  t('Complète pour ajouter 1 au compteur à chaque tour.',['for (let i = 0; i < 5; i___) {'],['++','--','==','**'],'`i++` veut dire « ajoute 1 à i ».'),
+  q('Que va afficher ce code ?',['let total = 0;','for (let i = 1; i <= 3; i++) {','  total = total + i;','}','console.log(total);'],['6','3','123','0'],'À chaque tour on ajoute le compteur au total : 0 + 1 + 2 + 3 = 6.'),
+  v('Une boucle while dont la condition reste toujours vraie ne s’arrête jamais.',null,true,'On appelle ça une boucle infinie. Il faut toujours vérifier que la condition finira par devenir fausse.')]},
+
+ {cards:[
+  {h:'Créer une liste',p:['On met les valeurs entre crochets `[ ]`, séparées par des virgules.','Pour lire un élément, on écrit le nom de la liste puis son index entre crochets.','`.length` donne le nombre d’éléments.'],code:['let fruits = ["pomme", "banane", "kiwi"];','console.log(fruits[0]);','console.log(fruits.length);'],out:['pomme','3']},
+  {h:'Ajouter et parcourir',p:['`.push(valeur)` ajoute un élément à la fin de la liste.','`for (let fruit of fruits)` fait un tour de boucle pour chaque élément. À chaque tour, la variable fruit contient l’élément suivant.'],code:['let fruits = ["pomme", "banane"];','fruits.push("kiwi");','for (let fruit of fruits) {','  console.log(fruit);','}'],out:['pomme','banane','kiwi']}],
+ ex:[
+  q('Que va afficher ce code ?',['let f = ["pomme", "banane", "kiwi"];','console.log(f[1]);'],['banane','pomme','kiwi','Une erreur'],'On compte à partir de 0 : l’index 1 est le deuxième élément.'),
+  q('Que va afficher ce code ?',['let f = ["pomme", "banane", "kiwi"];','console.log(f.length);'],['3','2','4','kiwi'],'`.length` donne le nombre d’éléments : il y en a 3.'),
+  t('Complète pour ajouter fraise à la fin de la liste.',['fruits.___("fraise");'],['push','add','append','plus'],'En JavaScript, on ajoute à la fin d’une liste avec `.push`.'),
+  q('Que va afficher ce code ?',['let n = [10, 20];','n.push(30);','console.log(n[2]);'],['30','20','10','Une erreur'],'Après push, la liste contient 10, 20, 30. L’index 2 est le troisième élément.'),
+  q('Dans une liste de 3 éléments, quel est l’index du dernier ?',null,['2','3','1','0'],'Les index sont 0, 1 et 2. Le dernier index vaut toujours le nombre d’éléments moins 1.'),
+  q('Combien de fois Miam va-t-il s’afficher ?',['let plats = ["riz", "pâtes", "soupe"];','for (let plat of plats) {','  console.log("Miam");','}'],['3 fois','1 fois','2 fois','4 fois'],'La boucle fait un tour par élément, et la liste en contient 3.')]},
+
+ {cards:[
+  {h:'Créer et appeler une fonction',p:['`function` crée la fonction. Ensuite viennent son nom, puis ses paramètres entre parenthèses.','`return` renvoie le résultat.','Pour l’utiliser, on écrit son nom avec une valeur entre parenthèses : `doubler(4)`.'],code:['function doubler(n) {','  return n * 2;','}','console.log(doubler(4));'],out:['8']},
+  {h:'Plusieurs paramètres, plusieurs appels',p:['On sépare les paramètres par des virgules. On peut appeler la même fonction autant de fois qu’on veut, avec des valeurs différentes.'],code:['function ajouter(a, b) {','  return a + b;','}','console.log(ajouter(2, 3));','console.log(ajouter(10, 1));'],out:['5','11']}],
+ ex:[
+  q('Que va afficher ce code ?',['function ajouter(a, b) {','  return a + b;','}','console.log(ajouter(2, 3));'],['5','23','a + b','Rien du tout'],'a reçoit 2, b reçoit 3, et la fonction renvoie 2 + 3.'),
+  t('Complète pour créer la fonction.',['___ direBonjour() {','  console.log("Bonjour");','}'],['function','def','func','void'],'En JavaScript, on crée une fonction avec le mot `function`.'),
+  q('Que va afficher ce code ?',['function saluer() {','  console.log("Salut");','}'],['Rien du tout','Salut','saluer','Une erreur'],'La fonction est créée mais jamais appelée. Il faudrait ajouter la ligne saluer(); pour qu’elle s’exécute.'),
+  t('Complète pour que la fonction renvoie le double de n.',['function doubler(n) {','  ___ n * 2;','}'],['return','renvoie','give','back'],'`return` est le mot qui renvoie le résultat de la fonction.'),
+  q('Que va afficher ce code ?',['function carre(n) {','  return n * n;','}','console.log(carre(3) + 1);'],['10','9','7','31'],'carre(3) renvoie 3 × 3 = 9, puis on ajoute 1.')]}
+],
+
+/* ---------------- PYTHON ---------------- */
+py:[
+ {cards:[
+  {h:'Afficher avec print',p:['Pour afficher un message, on écrit `print`, puis le message entre parenthèses.','Le texte se met toujours entre guillemets. En Python, pas de point-virgule : une instruction par ligne.'],code:['print("Bonjour !")'],out:['Bonjour !']},
+  {h:'Les commentaires',p:['Une ligne qui commence par `#` est un commentaire : une note pour les humains. L’ordinateur l’ignore complètement.'],code:['# Cette ligne est ignorée','print("Celle-ci est exécutée")'],out:['Celle-ci est exécutée']}],
+ ex:[
+  q('Que va afficher ce code ?',['print("Salut")'],['Salut','"Salut"','print','Rien du tout'],'Les guillemets servent à délimiter le texte dans le code. Ils ne sont pas affichés.'),
+  t('Complète pour afficher Coucou.',['___("Coucou")'],['print','echo','console.log','say'],'En Python, l’instruction pour afficher est `print`.'),
+  b('Une ligne contient une erreur. Laquelle ?',['print("Un")','print("Deux)','print("Trois")'],1,'Il manque le guillemet de fermeture après Deux. Un texte doit commencer et finir par un guillemet.'),
+  o('Remets les lignes dans l’ordre pour afficher 1, puis 2, puis 3.',['print("1")','print("2")','print("3")'],'L’ordinateur exécute les lignes de haut en bas.'),
+  q('Que va afficher ce code ?',['# print("A")','print("B")'],['B','A','A puis B','Rien du tout'],'La première ligne commence par `#` : c’est un commentaire, elle est ignorée.'),
+  v('En Python, il faut terminer chaque ligne par un point-virgule.',null,false,'Non. En Python, on passe simplement à la ligne suivante.')]},
+
+ {cards:[
+  {h:'Créer une variable',p:['En Python, pas de mot spécial : on écrit le nom, le signe `=`, puis la valeur.','Pour utiliser la valeur, on écrit simplement le nom de la variable, **sans guillemets**.'],code:['age = 25','print(age)'],out:['25']},
+  {h:'Changer la valeur',p:['Pour remplacer la valeur, on réécrit le nom, le signe `=` et la nouvelle valeur. L’ancienne valeur est oubliée.'],code:['score = 10','score = 20','print(score)'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['score = 10','score = 20','print(score)'],['20','10','30','score'],'La deuxième ligne remplace 10 par 20 dans la boîte score.'),
+  t('Complète pour ranger "Léa" dans la variable prenom.',['prenom ___ "Léa"'],['=','==','->','<-'],'Un seul `=` range la valeur dans la variable.'),
+  q('Que va afficher ce code ?',['ville = "Paris"','print("ville")'],['ville','Paris','"Paris"','Une erreur'],'Avec des guillemets, "ville" est un simple texte. Pour afficher le contenu de la variable, il faut écrire ville sans guillemets.'),
+  b('Une ligne contient une erreur. Laquelle ?',['points = 5','points = 8','print(point)'],2,'La variable s’appelle points, avec un s. Le nom doit être écrit exactement pareil partout.'),
+  v('En Python, il faut écrire le mot let pour créer une variable.',null,false,'Non. `let` est un mot de JavaScript. En Python, on écrit directement le nom, `=`, puis la valeur.')]},
+
+ {cards:[
+  {h:'Les trois familles en Python',p:['En Python, vrai s’écrit `True` et faux s’écrit `False`, avec une **majuscule** et sans guillemets.'],code:['age = 25','prix = 9.99','prenom = "Léa"','majeur = True']},
+  {h:'Le piège du texte',p:['Entre deux nombres, `+` additionne. Entre deux textes, `+` les colle bout à bout.','"2" avec des guillemets est un texte, pas un nombre.'],code:['print(2 + 3)','print("2" + "3")'],out:['5','23']}],
+ ex:[
+  q('Quelle est la famille de la valeur True ?',null,['Booléen','Nombre','Texte','Commentaire'],'Un booléen ne peut valoir que `True` (vrai) ou `False` (faux).'),
+  q('Que va afficher ce code ?',['print("2" + "3")'],['23','5','2 + 3','Une erreur'],'Ce sont deux textes : `+` les colle bout à bout.'),
+  q('Que va afficher ce code ?',['print(2 + 3)'],['5','23','2 + 3','Une erreur'],'Ce sont deux nombres : `+` les additionne.'),
+  b('Une ligne contient une erreur. Laquelle ?',['age = 25','majeur = true','print(majeur)'],1,'En Python, vrai s’écrit `True` avec une majuscule. Écrit en minuscules, Python croit que c’est un nom de variable qui n’existe pas.'),
+  q('Laquelle de ces valeurs est un texte ?',null,['"42"','42','True','4.2'],'Ce qui est entre guillemets est toujours un texte, même si ça ressemble à un nombre.')]},
+
+ {cards:[
+  {h:'Calculer en Python',p:['`/` donne toujours un résultat à virgule : `7 / 2` vaut 3.5.','`//` fait une division entière : on garde seulement la partie avant la virgule. `7 // 2` vaut 3.'],code:['print(7 / 2)','print(7 // 2)','print(7 % 2)','print(2 + 3 * 4)'],out:['3.5','3','1','14']},
+  {h:'Modifier une variable avec un calcul',p:['`score = score + 5` se lit de droite à gauche : on prend la valeur actuelle, on ajoute 5, puis on range le résultat dans la même boîte.','`score += 5` fait exactement la même chose, en plus court.'],code:['score = 10','score = score + 5','score += 5','print(score)'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['print(2 + 3 * 4)'],['14','20','24','9'],'La multiplication passe en premier : 3 × 4 = 12, puis 2 + 12 = 14.'),
+  q('Que va afficher ce code ?',['print(7 % 2)'],['1','3.5','3','0'],'`%` donne le reste de la division : 7 = 3 × 2 + 1, il reste 1.'),
+  q('Que va afficher ce code ?',['print(7 // 2)'],['3','3.5','4','1'],'`//` est la division entière : on garde 3 et on laisse tomber ce qui suit la virgule.'),
+  q('Que va afficher ce code ?',['s = 10','s += 5','print(s)'],['15','10','5','105'],'`s += 5` ajoute 5 à la valeur actuelle : 10 + 5 = 15.'),
+  q('Que va afficher ce code ?',['print(7 / 2)'],['3.5','3','4','1'],'Avec un seul `/`, Python garde la partie après la virgule.')]},
+
+ {cards:[
+  {h:'Coller avec +',p:['Le signe `+` colle deux textes. Pense à mettre l’espace à l’intérieur des guillemets, sinon les mots seront collés.','Attention : en Python, `+` ne peut pas coller un texte et un nombre. `"Age : " + 25` provoque une erreur.'],code:['prenom = "Léa"','print("Bonjour " + prenom)'],out:['Bonjour Léa']},
+  {h:'Le texte à trous',p:['On écrit la lettre `f` juste avant le premier guillemet. À l’intérieur, `{nom}` est remplacé par la valeur de la variable.','Ça marche avec du texte comme avec des nombres. C’est la façon la plus simple.'],code:['age = 20','print(f"Tu as {age} ans")'],out:['Tu as 20 ans']}],
+ ex:[
+  q('Que va afficher ce code ?',['p = "Tom"','print("Salut " + p)'],['Salut Tom','Salut p','SalutTom','Salut + Tom'],'`+` colle le texte "Salut " (avec son espace) et la valeur de p.'),
+  q('Que va afficher ce code ?',['age = 20','print(f"Tu as {age} ans")'],['Tu as 20 ans','Tu as {age} ans','Tu as age ans','Une erreur'],'Grâce au f devant les guillemets, `{age}` est remplacé par la valeur de age.'),
+  q('Attention, le f a disparu. Que va afficher ce code ?',['age = 20','print("Tu as {age} ans")'],['Tu as {age} ans','Tu as 20 ans','Tu as age ans','Une erreur'],'Sans le f devant les guillemets, rien n’est remplacé : le texte est affiché tel quel.'),
+  t('Complète pour que {score} soit remplacé par sa valeur.',['score = 12','print(___"Score : {score}")'],['f','$','s','&'],'En Python, c’est la lettre `f` devant les guillemets qui active le remplacement.'),
+  v('En Python, cette ligne fonctionne sans erreur : print("Age : " + 25)',null,false,'Python refuse de coller un texte et un nombre avec `+`. On écrit plutôt print(f"Age : {25}") ou on utilise une variable dans un texte à trous.')]},
+
+ {cards:[
+  {h:'if et else',p:['Après `if`, on écrit la question, puis **deux-points**. Les lignes décalées de 4 espaces en dessous sont exécutées si la réponse est oui.','Après `else:` (sinon) : ce qu’il faut faire si la réponse est non.','Ce décalage s’appelle l’**indentation**. En Python, il est obligatoire : c’est lui qui indique quelles lignes font partie du bloc.'],code:['age = 18','if age >= 18:','    print("Majeur")','else:','    print("Mineur")'],out:['Majeur']},
+  {h:'Poser une question',p:['`>` plus grand, `<` plus petit, `>=` plus grand ou égal, `<=` plus petit ou égal.','`==` teste si deux valeurs sont égales. `!=` teste si elles sont différentes.','Ne confonds pas : un seul `=` range une valeur dans une boîte, deux `==` posent une question.']},
+  {h:'Plus de deux chemins',p:['Avec `elif` (sinon si), on ajoute d’autres questions. L’ordinateur s’arrête à la première réponse vraie et ignore la suite.'],code:['t = 20','if t > 30:','    print("Chaud")','elif t > 15:','    print("Doux")','else:','    print("Froid")'],out:['Doux']}],
+ ex:[
+  q('Que va afficher ce code ?',['note = 12','if note >= 10:','    print("Réussi")','else:','    print("Raté")'],['Réussi','Raté','Réussi puis Raté','Rien du tout'],'12 est plus grand ou égal à 10 : la condition est vraie, on exécute le premier bloc seulement.'),
+  t('On veut tester si age est égal à 18.',['if age ___ 18:'],['==','=','===','=>'],'En Python, `==` pose la question « est-ce égal ? ». Un seul `=` sert à ranger une valeur.'),
+  q('Que va afficher ce code ?',['t = 5','if t > 30:','    print("Chaud")','elif t > 15:','    print("Doux")','else:','    print("Froid")'],['Froid','Doux','Chaud','Rien du tout'],'5 n’est pas plus grand que 30, ni plus grand que 15. On arrive donc dans le else.'),
+  b('Une ligne contient une erreur. Laquelle ?',['age = 20','if age >= 18','    print("Majeur")'],1,'Il manque les deux-points à la fin de la ligne du if.'),
+  q('Que va afficher ce code ?',['print(5 > 3)'],['True','true','5','2'],'Une comparaison donne un booléen. En Python il s’affiche avec une majuscule : True.'),
+  o('S’il pleut, on affiche Parapluie, sinon Lunettes. Remets les lignes dans l’ordre.',['pluie = True','if pluie == True:','    print("Parapluie")','else:','    print("Lunettes")'],'On crée d’abord la variable, puis on pose la question, puis vient le cas « oui », et enfin le cas « sinon ».')]},
+
+ {cards:[
+  {h:'La boucle for',p:['`range(3)` fabrique la suite 0, 1, 2 : trois nombres, en partant de 0.','À chaque tour, la variable `i` prend le nombre suivant. Les lignes décalées de 4 espaces sont répétées.','Pour choisir le départ : `range(1, 4)` donne 1, 2, 3. Le dernier nombre (4) n’est jamais inclus.'],code:['for i in range(3):','    print(i)'],out:['0','1','2']},
+  {h:'La boucle while',p:['`while` répète le bloc tant que la condition est vraie.','Il faut que quelque chose change à chaque tour (ici n diminue). Sinon la condition reste vraie pour toujours et la boucle ne s’arrête jamais.'],code:['n = 3','while n > 0:','    print(n)','    n = n - 1'],out:['3','2','1']}],
+ ex:[
+  q('Combien de fois Hop va-t-il s’afficher ?',['for i in range(4):','    print("Hop")'],['4 fois','3 fois','5 fois','1 fois'],'`range(4)` donne 0, 1, 2, 3 : ça fait 4 tours.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for i in range(3):','    print(i)'],['0 1 2','1 2 3','0 1 2 3','3 3 3'],'`range(3)` commence à 0 et s’arrête avant 3.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for i in range(1, 4):','    print(i)'],['1 2 3','1 2 3 4','0 1 2 3','1 4'],'`range(1, 4)` commence à 1 et s’arrête avant 4.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['n = 3','while n > 0:','    print(n)','    n = n - 1'],['3 2 1','3 2 1 0','1 2 3','3 3 3 sans fin'],'On affiche n puis on enlève 1. Quand n vaut 0, la condition n > 0 est fausse : on s’arrête sans afficher 0.'),
+  b('Une ligne contient une erreur. Laquelle ?',['for i in range(3):','print(i)'],1,'La ligne à répéter doit être décalée de 4 espaces. Sans ce décalage, Python ne sait pas qu’elle fait partie de la boucle.'),
+  o('On veut calculer 1 + 2 + 3, puis afficher le total une seule fois. Remets les lignes dans l’ordre.',['total = 0','for i in range(1, 4):','    total = total + i','print(total)'],'On part de 0, on ajoute chaque nombre dans la boucle, puis on affiche après la boucle (la dernière ligne n’est pas décalée).')]},
+
+ {cards:[
+  {h:'Créer une liste',p:['On met les valeurs entre crochets `[ ]`, séparées par des virgules.','Pour lire un élément, on écrit le nom de la liste puis son index entre crochets.','`len(liste)` donne le nombre d’éléments.'],code:['fruits = ["pomme", "banane", "kiwi"]','print(fruits[0])','print(len(fruits))'],out:['pomme','3']},
+  {h:'Ajouter et parcourir',p:['`.append(valeur)` ajoute un élément à la fin de la liste.','`for fruit in fruits:` fait un tour de boucle pour chaque élément. À chaque tour, la variable fruit contient l’élément suivant.'],code:['fruits = ["pomme", "banane"]','fruits.append("kiwi")','for fruit in fruits:','    print(fruit)'],out:['pomme','banane','kiwi']}],
+ ex:[
+  q('Que va afficher ce code ?',['f = ["pomme", "banane", "kiwi"]','print(f[1])'],['banane','pomme','kiwi','Une erreur'],'On compte à partir de 0 : l’index 1 est le deuxième élément.'),
+  t('Complète pour afficher le nombre d’éléments.',['fruits = ["pomme", "banane", "kiwi"]','print(___(fruits))'],['len','length','count','size'],'`len` (comme « length », longueur) donne le nombre d’éléments.'),
+  t('Complète pour ajouter fraise à la fin de la liste.',['fruits.___("fraise")'],['append','push','add','plus'],'En Python, on ajoute à la fin d’une liste avec `.append`.'),
+  q('Que va afficher ce code ?',['n = [10, 20]','n.append(30)','print(n[2])'],['30','20','10','Une erreur'],'Après append, la liste contient 10, 20, 30. L’index 2 est le troisième élément.'),
+  q('Dans une liste de 3 éléments, quel est l’index du dernier ?',null,['2','3','1','0'],'Les index sont 0, 1 et 2. Le dernier index vaut toujours le nombre d’éléments moins 1.'),
+  q('Combien de fois Miam va-t-il s’afficher ?',['plats = ["riz", "pâtes", "soupe"]','for plat in plats:','    print("Miam")'],['3 fois','1 fois','2 fois','4 fois'],'La boucle fait un tour par élément, et la liste en contient 3.')]},
+
+ {cards:[
+  {h:'Créer et appeler une fonction',p:['`def` crée la fonction. Ensuite viennent son nom, ses paramètres entre parenthèses, puis deux-points.','Les lignes décalées de 4 espaces forment le contenu de la fonction. `return` renvoie le résultat.','Pour l’utiliser, on écrit son nom avec une valeur entre parenthèses : `doubler(4)`.'],code:['def doubler(n):','    return n * 2','','print(doubler(4))'],out:['8']},
+  {h:'Plusieurs paramètres, plusieurs appels',p:['On sépare les paramètres par des virgules. On peut appeler la même fonction autant de fois qu’on veut, avec des valeurs différentes.','En Python, la fonction doit être créée **avant** la ligne qui l’appelle.'],code:['def ajouter(a, b):','    return a + b','','print(ajouter(2, 3))','print(ajouter(10, 1))'],out:['5','11']}],
+ ex:[
+  q('Que va afficher ce code ?',['def ajouter(a, b):','    return a + b','','print(ajouter(2, 3))'],['5','23','a + b','Rien du tout'],'a reçoit 2, b reçoit 3, et la fonction renvoie 2 + 3.'),
+  t('Complète pour créer la fonction.',['___ dire_bonjour():','    print("Bonjour")'],['def','function','func','fun'],'En Python, on crée une fonction avec le mot `def`.'),
+  q('Que va afficher ce code ?',['def saluer():','    print("Salut")'],['Rien du tout','Salut','saluer','Une erreur'],'La fonction est créée mais jamais appelée. Il faudrait ajouter la ligne saluer() pour qu’elle s’exécute.'),
+  o('Remets les lignes dans l’ordre pour créer la fonction triple, puis afficher le triple de 2.',['def triple(n):','    return n * 3','print(triple(2))'],'On crée d’abord la fonction (la ligne def puis son contenu décalé), et seulement ensuite on l’appelle.'),
+  q('Que va afficher ce code ?',['def carre(n):','    return n * n','','print(carre(3) + 1)'],['10','9','7','31'],'carre(3) renvoie 3 × 3 = 9, puis on ajoute 1.')]}
+],
+
+/* ---------------- C# ---------------- */
+cs:[
+ {cards:[
+  {h:'Afficher avec Console.WriteLine',p:['Pour afficher un message, on écrit `Console.WriteLine`, puis le message entre parenthèses.','En C#, les majuscules comptent : `Console` avec un C majuscule, `WriteLine` avec un W et un L majuscules.','Le texte se met entre guillemets, et chaque instruction se termine **obligatoirement** par un point-virgule.'],code:['Console.WriteLine("Bonjour !");'],out:['Bonjour !'],tip:'Dans les versions récentes de C#, ces lignes s’écrivent directement dans le fichier Program.cs, sans rien autour.'},
+  {h:'Les commentaires',p:['Une ligne qui commence par `//` est un commentaire : une note pour les humains. L’ordinateur l’ignore complètement.'],code:['// Cette ligne est ignorée','Console.WriteLine("Celle-ci est exécutée");'],out:['Celle-ci est exécutée']}],
+ ex:[
+  q('Que va afficher ce code ?',['Console.WriteLine("Salut");'],['Salut','"Salut"','Console.WriteLine','Rien du tout'],'Les guillemets servent à délimiter le texte dans le code. Ils ne sont pas affichés.'),
+  t('Complète pour afficher Coucou.',['Console.___("Coucou");'],['WriteLine','writeline','Print','Log'],'L’instruction est `Console.WriteLine`, avec W et L en majuscules.'),
+  b('Une ligne contient une erreur. Laquelle ?',['Console.WriteLine("Un");','Console.WriteLine("Deux")','Console.WriteLine("Trois");'],1,'Il manque le point-virgule à la fin de la ligne. En C#, il est obligatoire.'),
+  o('Remets les lignes dans l’ordre pour afficher 1, puis 2, puis 3.',['Console.WriteLine("1");','Console.WriteLine("2");','Console.WriteLine("3");'],'L’ordinateur exécute les lignes de haut en bas.'),
+  q('Que va afficher ce code ?',['// Console.WriteLine("A");','Console.WriteLine("B");'],['B','A','A puis B','Rien du tout'],'La première ligne commence par `//` : c’est un commentaire, elle est ignorée.'),
+  v('En C#, on peut aussi écrire console.writeline tout en minuscules.',null,false,'Non. C# fait la différence entre majuscules et minuscules : il faut écrire exactement Console.WriteLine.')]},
+
+ {cards:[
+  {h:'Le type d’abord',p:['En C#, on écrit d’abord le **type** de la valeur, puis le nom de la variable, puis la valeur.','`int` veut dire nombre entier. `string` veut dire texte.','Pour utiliser la valeur, on écrit simplement le nom de la variable, **sans guillemets**.'],code:['int age = 25;','string prenom = "Léa";','Console.WriteLine(age);'],out:['25']},
+  {h:'Changer la valeur',p:['Pour remplacer la valeur, on réécrit le nom, le signe `=` et la nouvelle valeur. On ne répète pas le type.','Le type d’une variable ne change jamais : une variable `int` ne peut contenir que des nombres entiers.'],code:['int score = 10;','score = 20;','Console.WriteLine(score);'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['int score = 10;','score = 20;','Console.WriteLine(score);'],['20','10','30','score'],'La deuxième ligne remplace 10 par 20 dans la boîte score.'),
+  t('Complète pour créer une variable qui contient un nombre entier.',['___ age = 25;'],['int','string','let','number'],'`int` est le type des nombres entiers.'),
+  t('Complète pour créer une variable qui contient du texte.',['___ prenom = "Léa";'],['string','int','text','bool'],'`string` est le type du texte.'),
+  b('Une ligne contient une erreur. Laquelle ?',['int points = 5;','points = 8;','Console.WriteLine(point);'],2,'La variable s’appelle points, avec un s. Le nom doit être écrit exactement pareil partout.'),
+  q('Que va afficher ce code ?',['string ville = "Paris";','Console.WriteLine("ville");'],['ville','Paris','"Paris"','Une erreur'],'Avec des guillemets, "ville" est un simple texte. Pour afficher le contenu de la variable, il faut écrire ville sans guillemets.'),
+  v('En C#, chaque variable a un type précis (int, string…) qui ne change jamais.',null,true,'Oui. C’est pour ça qu’on ne peut pas ranger un texte dans une variable `int`.')]},
+
+ {cards:[
+  {h:'Un type pour chaque famille',p:['`int` : nombre entier. `double` : nombre à virgule. `string` : texte. `bool` : booléen.','En C#, vrai s’écrit `true` et faux s’écrit `false`, sans guillemets.'],code:['int age = 25;','double prix = 9.99;','string prenom = "Léa";','bool majeur = true;']},
+  {h:'Le piège du texte',p:['Entre deux nombres, `+` additionne. Entre deux textes, `+` les colle bout à bout.','"2" avec des guillemets est un texte, pas un nombre.'],code:['Console.WriteLine(2 + 3);','Console.WriteLine("2" + "3");'],out:['5','23']}],
+ ex:[
+  t('Quel type pour un nombre à virgule ?',['___ prix = 9.99;'],['double','int','string','bool'],'`double` est le type des nombres à virgule. `int` n’accepte que les nombres entiers.'),
+  t('Quel type pour une valeur vrai ou faux ?',['___ majeur = true;'],['bool','int','string','double'],'`bool` est le type des booléens : `true` ou `false`.'),
+  q('Que va afficher ce code ?',['Console.WriteLine("2" + "3");'],['23','5','2 + 3','Une erreur'],'Ce sont deux textes : `+` les colle bout à bout.'),
+  b('Une ligne contient une erreur. Laquelle ?',['int age = 25;','string prenom = Léa;','bool majeur = true;'],1,'Il manque les guillemets autour de Léa. Un texte doit toujours être entre guillemets.'),
+  q('Quel type choisir pour ranger le nombre entier 7 ?',null,['int','string','bool','text'],'`int` est le type des nombres entiers.'),
+  b('Une ligne contient une erreur. Laquelle ?',['int age = "25";','string ville = "Lyon";','bool ouvert = false;'],0,'"25" entre guillemets est un texte. On ne peut pas ranger un texte dans une variable de type `int`.')]},
+
+ {cards:[
+  {h:'Calculer en C#',p:['Piège du C# : quand on divise deux nombres **entiers**, le résultat est un entier. La partie après la virgule est coupée : `7 / 2` vaut 3.','Pour obtenir trois et demi, il faut au moins un nombre à virgule dans le calcul : `7.0 / 2`.'],code:['Console.WriteLine(7 / 2);','Console.WriteLine(7 % 2);','Console.WriteLine(2 + 3 * 4);'],out:['3','1','14']},
+  {h:'Modifier une variable avec un calcul',p:['`score = score + 5` se lit de droite à gauche : on prend la valeur actuelle, on ajoute 5, puis on range le résultat dans la même boîte.','`score += 5` fait exactement la même chose, en plus court.'],code:['int score = 10;','score = score + 5;','score += 5;','Console.WriteLine(score);'],out:['20']}],
+ ex:[
+  q('Que va afficher ce code ?',['Console.WriteLine(2 + 3 * 4);'],['14','20','24','9'],'La multiplication passe en premier : 3 × 4 = 12, puis 2 + 12 = 14.'),
+  q('Que va afficher ce code ?',['Console.WriteLine(7 % 2);'],['1','3.5','3','0'],'`%` donne le reste de la division : 7 = 3 × 2 + 1, il reste 1.'),
+  q('Attention au piège. Que va afficher ce code ?',['Console.WriteLine(7 / 2);'],['3','3.5','4','1'],'7 et 2 sont deux entiers : en C#, le résultat est un entier, la partie après la virgule est coupée.'),
+  q('Que va afficher ce code ?',['int s = 10;','s += 5;','Console.WriteLine(s);'],['15','10','5','105'],'`s += 5` ajoute 5 à la valeur actuelle : 10 + 5 = 15.'),
+  v('En C#, diviser deux nombres entiers donne toujours un nombre entier.',null,true,'Oui. Pour garder la partie après la virgule, il faut qu’au moins un des deux nombres soit à virgule, comme 7.0.')]},
+
+ {cards:[
+  {h:'Coller avec +',p:['Le signe `+` colle un texte et une variable. Pense à mettre l’espace à l’intérieur des guillemets, sinon les mots seront collés.'],code:['string prenom = "Léa";','Console.WriteLine("Bonjour " + prenom);'],out:['Bonjour Léa']},
+  {h:'Le texte à trous',p:['On écrit le signe `$` juste avant le premier guillemet. À l’intérieur, `{nom}` est remplacé par la valeur de la variable.'],code:['int age = 20;','Console.WriteLine($"Tu as {age} ans");'],out:['Tu as 20 ans']}],
+ ex:[
+  q('Que va afficher ce code ?',['string p = "Tom";','Console.WriteLine("Salut " + p);'],['Salut Tom','Salut p','SalutTom','Salut + Tom'],'`+` colle le texte "Salut " (avec son espace) et la valeur de p.'),
+  q('Que va afficher ce code ?',['int age = 20;','Console.WriteLine($"Tu as {age} ans");'],['Tu as 20 ans','Tu as {age} ans','Tu as age ans','Une erreur'],'Grâce au $ devant les guillemets, `{age}` est remplacé par la valeur de age.'),
+  q('Attention, le $ a disparu. Que va afficher ce code ?',['int age = 20;','Console.WriteLine("Tu as {age} ans");'],['Tu as {age} ans','Tu as 20 ans','Tu as age ans','Une erreur'],'Sans le $ devant les guillemets, rien n’est remplacé : le texte est affiché tel quel.'),
+  t('Complète pour que {score} soit remplacé par sa valeur.',['int score = 12;','Console.WriteLine(___"Score : {score}");'],['$','f','#','&'],'En C#, c’est le signe `$` devant les guillemets qui active le remplacement.'),
+  q('Que va afficher ce code ?',['Console.WriteLine("Age : " + 25);'],['Age : 25','Age : + 25','25','Une erreur'],'C# transforme tout seul le nombre 25 en texte pour le coller.')]},
+
+ {cards:[
+  {h:'if et else',p:['Entre parenthèses : la question posée. Entre accolades `{ }` : ce qu’il faut faire si la réponse est oui.','Après `else` (sinon) : ce qu’il faut faire si la réponse est non.'],code:['int age = 18;','if (age >= 18)','{','    Console.WriteLine("Majeur");','}','else','{','    Console.WriteLine("Mineur");','}'],out:['Majeur']},
+  {h:'Poser une question',p:['`>` plus grand, `<` plus petit, `>=` plus grand ou égal, `<=` plus petit ou égal.','`==` teste si deux valeurs sont égales. `!=` teste si elles sont différentes.','Ne confonds pas : un seul `=` range une valeur dans une boîte, deux `==` posent une question.']},
+  {h:'Plus de deux chemins',p:['Avec `else if` (sinon si), on ajoute d’autres questions. L’ordinateur s’arrête à la première réponse vraie et ignore la suite.'],code:['int t = 20;','if (t > 30) {','    Console.WriteLine("Chaud");','} else if (t > 15) {','    Console.WriteLine("Doux");','} else {','    Console.WriteLine("Froid");','}'],out:['Doux']}],
+ ex:[
+  q('Que va afficher ce code ?',['int note = 12;','if (note >= 10) {','    Console.WriteLine("Réussi");','} else {','    Console.WriteLine("Raté");','}'],['Réussi','Raté','Réussi puis Raté','Rien du tout'],'12 est plus grand ou égal à 10 : la condition est vraie, on exécute le premier bloc seulement.'),
+  t('On veut tester si age est égal à 18.',['if (age ___ 18) {'],['==','=','===','=>'],'En C#, `==` pose la question « est-ce égal ? ». Un seul `=` sert à ranger une valeur.'),
+  q('Que va afficher ce code ?',['int t = 5;','if (t > 30) {','    Console.WriteLine("Chaud");','} else if (t > 15) {','    Console.WriteLine("Doux");','} else {','    Console.WriteLine("Froid");','}'],['Froid','Doux','Chaud','Rien du tout'],'5 n’est pas plus grand que 30, ni plus grand que 15. On arrive donc dans le else.'),
+  b('Une ligne contient une erreur. Laquelle ?',['int age = 20;','if age >= 18 {','    Console.WriteLine("Majeur");','}'],1,'En C#, la question du if doit être entre parenthèses : if (age >= 18).'),
+  q('Que va afficher ce code ?',['Console.WriteLine(5 > 3);'],['True','true','5','2'],'Une comparaison donne un booléen. Dans le code on écrit `true`, mais à l’affichage C# écrit True avec une majuscule.'),
+  o('S’il pleut, on affiche Parapluie, sinon Lunettes. Remets les lignes dans l’ordre.',['bool pluie = true;','if (pluie == true) {','    Console.WriteLine("Parapluie");','} else {','    Console.WriteLine("Lunettes");','}'],'On crée d’abord la variable, puis on pose la question, puis vient le cas « oui », et enfin le cas « sinon ».')]},
+
+ {cards:[
+  {h:'La boucle for',p:['Entre parenthèses, trois morceaux séparés par des points-virgules :','`int i = 1` : on démarre un compteur à 1.','`i <= 3` : on continue tant que le compteur ne dépasse pas 3.','`i++` : après chaque tour, on ajoute 1 au compteur.'],code:['for (int i = 1; i <= 3; i++)','{','    Console.WriteLine(i);','}'],out:['1','2','3']},
+  {h:'La boucle while',p:['`while` répète le bloc tant que la condition est vraie.','Il faut que quelque chose change à chaque tour (ici n diminue). Sinon la condition reste vraie pour toujours et la boucle ne s’arrête jamais.'],code:['int n = 3;','while (n > 0)','{','    Console.WriteLine(n);','    n = n - 1;','}'],out:['3','2','1']}],
+ ex:[
+  q('Combien de fois Hop va-t-il s’afficher ?',['for (int i = 0; i < 4; i++) {','    Console.WriteLine("Hop");','}'],['4 fois','3 fois','5 fois','1 fois'],'Le compteur vaut 0, 1, 2 puis 3 : ça fait 4 tours. À 4, la condition i < 4 devient fausse.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (int i = 1; i <= 3; i++) {','    Console.WriteLine(i);','}'],['1 2 3','0 1 2','1 2 3 4','3 3 3'],'Le compteur démarre à 1 et s’arrête après 3.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['int n = 3;','while (n > 0) {','    Console.WriteLine(n);','    n = n - 1;','}'],['3 2 1','3 2 1 0','1 2 3','3 3 3 sans fin'],'On affiche n puis on enlève 1. Quand n vaut 0, la condition n > 0 est fausse : on s’arrête sans afficher 0.'),
+  t('Complète pour créer le compteur de la boucle.',['for (___ i = 0; i < 5; i++) {'],['int','let','string','for'],'Le compteur est un nombre entier : son type est `int`.'),
+  q('Que va afficher ce code ?',['int total = 0;','for (int i = 1; i <= 3; i++) {','    total = total + i;','}','Console.WriteLine(total);'],['6','3','123','0'],'À chaque tour on ajoute le compteur au total : 0 + 1 + 2 + 3 = 6.'),
+  v('Une boucle while dont la condition reste toujours vraie ne s’arrête jamais.',null,true,'On appelle ça une boucle infinie. Il faut toujours vérifier que la condition finira par devenir fausse.')]},
+
+ {cards:[
+  {h:'Créer une liste',p:['`List<string>` veut dire « liste de textes ». Entre les chevrons `< >`, on indique le type des éléments.','Pour lire un élément, on écrit le nom de la liste puis son index entre crochets.','`.Count` donne le nombre d’éléments.'],code:['List<string> fruits = new List<string> { "pomme", "banane", "kiwi" };','Console.WriteLine(fruits[0]);','Console.WriteLine(fruits.Count);'],out:['pomme','3'],tip:'Si C# ne reconnaît pas le mot List, ajoute tout en haut du fichier la ligne : using System.Collections.Generic; (les projets récents l’ajoutent tout seuls).'},
+  {h:'Ajouter et parcourir',p:['`.Add(valeur)` ajoute un élément à la fin de la liste.','`foreach (string fruit in fruits)` fait un tour de boucle pour chaque élément. À chaque tour, la variable fruit contient l’élément suivant.'],code:['List<string> fruits = new List<string> { "pomme", "banane" };','fruits.Add("kiwi");','foreach (string fruit in fruits)','{','    Console.WriteLine(fruit);','}'],out:['pomme','banane','kiwi']}],
+ ex:[
+  q('Que va afficher ce code ?',['List<string> f = new List<string> { "pomme", "banane", "kiwi" };','Console.WriteLine(f[1]);'],['banane','pomme','kiwi','Une erreur'],'On compte à partir de 0 : l’index 1 est le deuxième élément.'),
+  t('Complète pour afficher le nombre d’éléments de la liste.',['Console.WriteLine(fruits.___);'],['Count','Size','Total','Number'],'Pour une `List`, le nombre d’éléments s’obtient avec `.Count`.'),
+  t('Complète pour ajouter fraise à la fin de la liste.',['fruits.___("fraise");'],['Add','Push','add','Plus'],'En C#, on ajoute à la fin d’une liste avec `.Add`, avec un A majuscule.'),
+  q('Que va afficher ce code ?',['List<int> n = new List<int> { 10, 20 };','n.Add(30);','Console.WriteLine(n[2]);'],['30','20','10','Une erreur'],'Après Add, la liste contient 10, 20, 30. L’index 2 est le troisième élément.'),
+  q('Dans une liste de 3 éléments, quel est l’index du dernier ?',null,['2','3','1','0'],'Les index sont 0, 1 et 2. Le dernier index vaut toujours le nombre d’éléments moins 1.'),
+  q('Combien de fois Miam va-t-il s’afficher ?',['List<string> plats = new List<string> { "riz", "pâtes", "soupe" };','foreach (string plat in plats) {','    Console.WriteLine("Miam");','}'],['3 fois','1 fois','2 fois','4 fois'],'La boucle fait un tour par élément, et la liste en contient 3.')]},
+
+ {cards:[
+  {h:'Créer et appeler une fonction',p:['Le premier mot est le type du résultat : ici `int`, car la fonction renvoie un nombre entier.','Ensuite viennent le nom, puis les paramètres entre parenthèses, chacun avec son type.','`return` renvoie le résultat. Pour utiliser la fonction, on écrit son nom avec une valeur : `Doubler(4)`.'],code:['int Doubler(int n)','{','    return n * 2;','}','','Console.WriteLine(Doubler(4));'],out:['8']},
+  {h:'Une fonction qui ne renvoie rien',p:['Si la fonction ne renvoie aucun résultat (par exemple, elle affiche juste un message), on écrit `void` à la place du type.'],code:['void DireBonjour()','{','    Console.WriteLine("Bonjour");','}','','DireBonjour();'],out:['Bonjour']}],
+ ex:[
+  q('Que va afficher ce code ?',['int Ajouter(int a, int b)','{','    return a + b;','}','','Console.WriteLine(Ajouter(2, 3));'],['5','23','a + b','Rien du tout'],'a reçoit 2, b reçoit 3, et la fonction renvoie 2 + 3.'),
+  t('La fonction renvoie un nombre entier. Complète.',['___ Doubler(int n)','{','    return n * 2;','}'],['int','void','string','function'],'On écrit devant le nom le type du résultat : `int` pour un nombre entier.'),
+  t('La fonction ne renvoie rien. Complète.',['___ DireBonjour()','{','    Console.WriteLine("Bonjour");','}'],['void','int','null','function'],'`void` indique que la fonction ne renvoie aucun résultat.'),
+  q('Que va afficher ce code ?',['void Saluer()','{','    Console.WriteLine("Salut");','}'],['Rien du tout','Salut','Saluer','Une erreur'],'La fonction est créée mais jamais appelée. Il faudrait ajouter la ligne Saluer(); pour qu’elle s’exécute.'),
+  q('Que va afficher ce code ?',['int Carre(int n)','{','    return n * n;','}','','Console.WriteLine(Carre(3) + 1);'],['10','9','7','31'],'Carre(3) renvoie 3 × 3 = 9, puis on ajoute 1.')]}
+]};
+
+/* ================= ALLER PLUS LOIN : leçons 10 à 16 ================= */
+TITLES.push('Et, ou, non','Les outils du texte','Les dictionnaires','Arrêter ou sauter un tour','Gérer les erreurs','Les classes et les objets','Projet : FizzBuzz');
+INTRO.push(
+ {h:'Combiner plusieurs questions',p:['Parfois une seule question ne suffit pas. Pour monter dans un manège, il faut avoir plus de 10 ans **et** mesurer plus de 140 cm.','**ET** : vrai seulement si les deux côtés sont vrais.','**OU** : vrai dès qu’au moins un des deux côtés est vrai.','**NON** : inverse la valeur. Vrai devient faux, faux devient vrai.']},
+ {h:'Le texte a ses propres outils',p:['Chaque langage fournit des outils tout prêts pour travailler avec du texte : compter les caractères, passer en majuscules, vérifier si un mot est présent.','Ces outils ne modifient pas le texte d’origine : ils fabriquent un **nouveau** texte, qu’on peut afficher ou ranger dans une variable.']},
+ {h:'Retrouver une valeur par son nom',p:['Dans une liste, on retrouve une valeur grâce à son numéro. Dans un **dictionnaire**, on la retrouve grâce à un nom, appelé **clé**.','Comme dans un vrai dictionnaire : on cherche un mot (la clé) et on trouve sa définition (la valeur).','Exemple : un carnet d’âges, où la clé "Léa" donne la valeur 25.']},
+ {h:'Contrôler une boucle de l’intérieur',p:['Deux mots permettent de changer le déroulement d’une boucle.','`break` : on arrête la boucle tout de suite, même s’il restait des tours. Comme arrêter de chercher ses clés dès qu’on les a trouvées.','`continue` : on abandonne le tour en cours et on passe directement au tour suivant.']},
+ {h:'Quand le programme plante',p:['Certaines opérations peuvent échouer pendant que le programme tourne : transformer le texte "abc" en nombre, diviser par zéro, utiliser quelque chose qui n’existe pas…','Par défaut, une erreur arrête tout le programme. Pour éviter ça, on **essaie** le code risqué, et on prévoit quoi faire **si ça échoue**.','C’est comme un filet de sécurité sous un trapéziste.']},
+ {h:'Une classe, c’est un plan de fabrication',p:['Une **classe** est un plan. Elle décrit ce que possède une chose (ses **données**) et ce qu’elle sait faire (ses **méthodes**, des fonctions rangées dans la classe).','Un **objet** est un exemplaire fabriqué à partir de ce plan. Avec un seul plan « Chien », on peut créer autant de chiens qu’on veut, chacun avec son propre nom.','C’est la base de la programmation orientée objet, utilisée dans presque tous les vrais logiciels.']},
+ {h:'Ton premier vrai programme',p:['FizzBuzz est un exercice célèbre, souvent posé en entretien d’embauche. Tu as maintenant tout ce qu’il faut pour le comprendre.','La règle : on compte de 1 à 15. Pour un multiple de 3, on affiche Fizz à la place du nombre. Pour un multiple de 5, on affiche Buzz. Pour un multiple des deux, on affiche FizzBuzz.','Les outils : une boucle pour compter, des conditions pour choisir, et `%` pour reconnaître les multiples.']}
+);
+const FZ='Règle FizzBuzz : multiple de 3 → Fizz, multiple de 5 → Buzz, multiple des deux → FizzBuzz, sinon le nombre lui-même. ';
+const FZX=[
+ ()=>q(FZ+'Qu’affiche-t-on pour 9 ?',null,['Fizz','Buzz','FizzBuzz','9'],'9 = 3 × 3 : c’est un multiple de 3, mais pas de 5.'),
+ ()=>q(FZ+'Qu’affiche-t-on pour 15 ?',null,['FizzBuzz','Fizz','Buzz','15'],'15 = 3 × 5 : c’est un multiple de 3 et de 5 à la fois.'),
+ ()=>q(FZ+'Qu’affiche-t-on pour 7 ?',null,['7','Fizz','Buzz','FizzBuzz'],'7 n’est un multiple ni de 3 ni de 5 : on affiche simplement le nombre.')];
+const VCLASS=()=>v('À partir d’une seule classe, on peut créer plusieurs objets différents.',null,true,'Oui. La classe est le plan, et chaque objet est un exemplaire avec ses propres valeurs.');
+
+const ADV={
+/* ---------------- JAVASCRIPT ---------------- */
+js:[
+ {cards:[
+  {h:'&&, || et !',p:['`&&` veut dire ET. `||` veut dire OU. `!` veut dire NON et se place juste devant la valeur.'],code:['let age = 12;','let taille = 150;','if (age > 10 && taille > 140) {','  console.log("Tu peux monter");','}'],out:['Tu peux monter']},
+  {h:'Les trois en action',p:['Chaque ligne donne un booléen : `true` ou `false`.'],code:['console.log(true && false);','console.log(true || false);','console.log(!true);'],out:['false','true','false']}],
+ ex:[
+  q('Que va afficher ce code ?',['console.log(true && false);'],['false','true','truefalse','Une erreur'],'ET : il faut que les deux côtés soient vrais. Ici, un des deux est faux.'),
+  q('Que va afficher ce code ?',['console.log(false || true);'],['true','false','falsetrue','Une erreur'],'OU : il suffit qu’un seul côté soit vrai.'),
+  q('Que va afficher ce code ?',['console.log(!false);'],['true','false','!false','Une erreur'],'NON inverse la valeur : le contraire de faux, c’est vrai.'),
+  q('Que va afficher ce code ?',['let age = 8;','let accompagne = true;','if (age >= 12 || accompagne) {','  console.log("Entrée autorisée");','} else {','  console.log("Entrée refusée");','}'],['Entrée autorisée','Entrée refusée','Les deux messages','Rien du tout'],'age >= 12 est faux, mais accompagne est vrai. Avec OU, un seul côté vrai suffit.'),
+  t('Il faut avoir au moins 10 ET être présent. Complète.',['if (note >= 10 ___ present) {'],['&&','||','!','and'],'En JavaScript, ET s’écrit `&&`.'),
+  q('Que va afficher ce code ?',['let pluie = false;','if (!pluie) {','  console.log("On sort");','} else {','  console.log("On reste");','}'],['On sort','On reste','Les deux messages','Rien du tout'],'pluie vaut false, donc !pluie vaut true : la condition est vraie.')]},
+
+ {cards:[
+  {h:'Trois outils à connaître',p:['`.length` donne le nombre de caractères.','`.toUpperCase()` fabrique le même texte en majuscules (`.toLowerCase()` pour les minuscules).','`.includes("...")` répond true si le texte contient ce morceau.'],code:['let mot = "Bonjour";','console.log(mot.length);','console.log(mot.toUpperCase());','console.log(mot.includes("jour"));'],out:['7','BONJOUR','true']},
+  {h:'Lire une seule lettre',p:['Comme pour les listes, chaque caractère a un index, et on compte à partir de 0.'],code:['let mot = "Chat";','console.log(mot[0]);','console.log(mot[3]);'],out:['C','t']}],
+ ex:[
+  q('Que va afficher ce code ?',['console.log("chat".length);'],['4','3','5','chat'],'Le mot chat contient 4 caractères.'),
+  q('Que va afficher ce code ?',['console.log("salut".toUpperCase());'],['SALUT','Salut','salut','Une erreur'],'`.toUpperCase()` passe toutes les lettres en majuscules.'),
+  q('Que va afficher ce code ?',['let mot = "Python";','console.log(mot[0]);'],['P','y','n','Python'],'L’index 0 est le premier caractère.'),
+  q('Que va afficher ce code ?',['console.log("chocolat".includes("cola"));'],['true','false','cola','3'],'Les lettres c, o, l, a se suivent bien à l’intérieur de chocolat.'),
+  q('Attention au piège. Que va afficher ce code ?',['let mot = "bonjour";','mot.toUpperCase();','console.log(mot);'],['bonjour','BONJOUR','Bonjour','Une erreur'],'`.toUpperCase()` fabrique un nouveau texte mais ne modifie pas la variable. Il aurait fallu écrire mot = mot.toUpperCase();'),
+  t('Complète pour afficher le nombre de caractères.',['console.log(prenom.___);'],['length','size','count','len'],'En JavaScript, la longueur d’un texte s’obtient avec `.length`.'),
+  w('La variable `nom` contient un texte. Écris la ligne qui l’affiche en majuscules.',null,['console.log(nom.toUpperCase());'],'On appelle `.toUpperCase()` sur la variable, à l’intérieur de console.log.')]},
+
+ {cards:[
+  {h:'Les objets en JavaScript',p:['En JavaScript, le dictionnaire s’appelle un **objet**. On l’écrit entre accolades, avec des paires `clé: valeur` séparées par des virgules.','Pour lire une valeur : le nom de l’objet, un point, puis la clé.'],code:['let joueur = { nom: "Léa", score: 12 };','console.log(joueur.nom);','console.log(joueur.score);'],out:['Léa','12']},
+  {h:'Modifier et ajouter',p:['On change une valeur comme pour une variable. Si la clé n’existe pas encore, elle est créée.','Autre écriture possible, avec la clé entre crochets et guillemets : `joueur["score"]` est identique à `joueur.score`.','Lire une clé qui n’existe pas ne provoque pas d’erreur : on obtient la valeur spéciale `undefined` (« non défini »).'],code:['let joueur = { nom: "Léa", score: 12 };','joueur.score = 20;','joueur.niveau = 3;','console.log(joueur.score);','console.log(joueur["niveau"]);'],out:['20','3']}],
+ ex:[
+  q('Que va afficher ce code ?',['let p = { nom: "Tom", age: 30 };','console.log(p.age);'],['30','Tom','age','Une erreur'],'p.age va chercher la valeur rangée sous la clé age.'),
+  q('Que va afficher ce code ?',['let p = { nom: "Tom", age: 30 };','p.age = 31;','console.log(p.age);'],['31','30','61','Une erreur'],'La deuxième ligne remplace la valeur rangée sous la clé age.'),
+  t('Complète pour afficher Félix.',['let chat = { nom: "Félix", age: 3 };','console.log(chat.___);'],['nom','age','Félix','chat'],'Félix est rangé sous la clé nom.'),
+  q('Que va afficher ce code ?',['let p = { nom: "Tom" };','p.ville = "Lyon";','console.log(p.ville);'],['Lyon','ville','Tom','Une erreur'],'La clé ville n’existait pas : elle est créée à la deuxième ligne.'),
+  q('Que va afficher ce code ?',['let stock = { pommes: 4, poires: 2 };','console.log(stock["poires"]);'],['2','4','poires','Une erreur'],'stock["poires"] est identique à stock.poires.'),
+  q('Que va afficher ce code ?',['let p = { nom: "Tom" };','console.log(p.age);'],['undefined','0','Tom','Une erreur'],'En JavaScript, lire une clé qui n’existe pas donne `undefined`.'),
+  w('Écris la ligne qui affiche le score de l’objet `joueur`.',null,['console.log(joueur.score);','console.log(joueur["score"]);'],'On lit la valeur avec le nom de l’objet, un point, puis la clé.')]},
+
+ {cards:[
+  {h:'break : on arrête tout',p:['Quand i vaut 3, `break` arrête toute la boucle. Ni 3, ni 4, ni 5 ne sont affichés.'],code:['for (let i = 1; i <= 5; i++) {','  if (i === 3) {','    break;','  }','  console.log(i);','}'],out:['1','2']},
+  {h:'continue : on saute un tour',p:['Quand i vaut 3, `continue` saute la fin du tour : 3 n’est pas affiché. Mais la boucle reprend normalement avec 4.'],code:['for (let i = 1; i <= 5; i++) {','  if (i === 3) {','    continue;','  }','  console.log(i);','}'],out:['1','2','4','5']}],
+ ex:[
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (let i = 1; i <= 5; i++) {','  if (i === 4) {','    break;','  }','  console.log(i);','}'],['1 2 3','1 2 3 4','1 2 3 5','1 2 3 4 5'],'À 4, break arrête toute la boucle avant l’affichage.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (let i = 1; i <= 4; i++) {','  if (i === 2) {','    continue;','  }','  console.log(i);','}'],['1 3 4','1','1 2 3 4','3 4'],'À 2, continue saute l’affichage, puis la boucle reprend avec 3.'),
+  t('On veut arrêter complètement la boucle dès qu’on trouve 7.',['for (let n of nombres) {','  if (n === 7) {','    ___;','  }','}'],['break','continue','stop','exit'],'`break` arrête la boucle. `continue` passerait seulement au tour suivant.'),
+  q('Que va afficher ce code ?',['let noms = ["Ana", "Bob", "Cléo"];','for (let nom of noms) {','  if (nom === "Bob") {','    break;','  }','  console.log(nom);','}'],['Ana','Ana Bob','Ana Cléo','Bob'],'Ana est affichée. Arrivé à Bob, break arrête la boucle : Cléo n’est jamais atteinte.'),
+  q('Combien de fois Hop va-t-il s’afficher ?',['for (let i = 0; i < 10; i++) {','  if (i === 2) {','    break;','  }','  console.log("Hop");','}'],['2 fois','3 fois','10 fois','1 fois'],'Hop s’affiche quand i vaut 0 puis 1. Quand i vaut 2, la boucle s’arrête.'),
+  v('Après un continue, la boucle s’arrête définitivement.',null,false,'Non. `continue` saute seulement le tour en cours. C’est `break` qui arrête la boucle.'),
+  w('Écris l’instruction qui arrête immédiatement une boucle.',null,['break;'],'Un seul mot : `break`.')]},
+
+ {cards:[
+  {h:'try et catch',p:['`try` (essayer) contient le code risqué. Si une erreur arrive, on saute immédiatement dans `catch` (attraper).','Ici, fonctionInconnue n’existe pas : c’est une erreur. La ligne qui affiche "Après" n’est donc jamais exécutée.','Sans erreur, le bloc `catch` est simplement ignoré.'],code:['try {','  console.log("Avant");','  fonctionInconnue();','  console.log("Après");','} catch (erreur) {','  console.log("Oups, une erreur");','}','console.log("Le programme continue");'],out:['Avant','Oups, une erreur','Le programme continue']},
+  {h:'Déclencher sa propre erreur',p:['`throw new Error("message")` déclenche volontairement une erreur.','Dans le `catch`, la variable entre parenthèses contient l’erreur. Son message se lit avec `.message`.'],code:['function diviser(a, b) {','  if (b === 0) {','    throw new Error("Division par zéro interdite");','  }','  return a / b;','}','try {','  console.log(diviser(10, 0));','} catch (erreur) {','  console.log(erreur.message);','}'],out:['Division par zéro interdite']}],
+ ex:[
+  q('La fonction inconnue n’existe pas. Que va afficher ce code ? (une lettre par ligne)',['try {','  console.log("A");','  inconnue();','  console.log("B");','} catch (e) {','  console.log("C");','}'],['A C','A B C','A B','C'],'A s’affiche, puis l’erreur fait sauter directement dans le catch : B est ignoré.'),
+  q('Ici, aucune erreur. Que va afficher ce code ? (une lettre par ligne)',['try {','  console.log("A");','  console.log("B");','} catch (e) {','  console.log("C");','}'],['A B','A B C','C','A C'],'Sans erreur, tout le try est exécuté et le catch est ignoré.'),
+  t('Complète pour attraper l’erreur.',['try {','  risque();','} ___ (erreur) {','  console.log("Raté");','}'],['catch','except','else','error'],'En JavaScript, le bloc qui attrape l’erreur s’appelle `catch`.'),
+  q('Que va afficher ce code ? (un mot par ligne)',['try {','  inconnue();','} catch (e) {','  console.log("Erreur");','}','console.log("Fin");'],['Erreur Fin','Erreur','Fin','Rien du tout'],'L’erreur est attrapée, donc le programme ne plante pas et continue jusqu’à la dernière ligne.'),
+  q('Que va afficher ce code ?',['try {','  throw new Error("Stop");','} catch (e) {','  console.log(e.message);','}'],['Stop','Error','e.message','Rien du tout'],'`throw` déclenche une erreur dont le message est Stop, et le catch affiche ce message.'),
+  v('Si aucune erreur ne se produit dans le try, le bloc catch est ignoré.',null,true,'Oui. Le catch ne sert que si quelque chose échoue.')]},
+
+ {cards:[
+  {h:'Créer une classe et un objet',p:['`constructor` est exécuté automatiquement à la création de l’objet. Ici, il range le nom reçu dans l’objet.','`this` veut dire « cet objet-ci ». `this.nom` est donc le nom de ce chien précis.','`new Chien("Rex")` fabrique un nouvel objet à partir de la classe.'],code:['class Chien {','  constructor(nom) {','    this.nom = nom;','  }','  aboyer() {','    console.log(this.nom + " dit Wouf");','  }','}','let rex = new Chien("Rex");','rex.aboyer();'],out:['Rex dit Wouf']},
+  {h:'Un plan, plusieurs objets',p:['Chaque objet garde ses propres valeurs. Modifier l’un ne change pas l’autre.'],code:['class Chien {','  constructor(nom) {','    this.nom = nom;','  }','}','let rex = new Chien("Rex");','let milou = new Chien("Milou");','console.log(rex.nom);','console.log(milou.nom);'],out:['Rex','Milou']}],
+ ex:[
+  q('Que va afficher ce code ?',['class Chat {','  constructor(nom) {','    this.nom = nom;','  }','}','let c = new Chat("Félix");','console.log(c.nom);'],['Félix','nom','Chat','Une erreur'],'Le constructeur a rangé "Félix" dans c.nom.'),
+  t('Complète pour fabriquer un objet à partir de la classe Chien.',['let rex = ___ Chien("Rex");'],['new','class','make','create'],'`new` fabrique un nouvel objet à partir d’une classe.'),
+  t('Complète pour ranger le nom dans l’objet en cours de création.',['class Chien {','  constructor(nom) {','    ___.nom = nom;','  }','}'],['this','self','Chien','me'],'En JavaScript, « cet objet-ci » s’écrit `this`.'),
+  q('Que va afficher ce code ?',['class Compteur {','  constructor() {','    this.total = 0;','  }','  ajouter() {','    this.total = this.total + 1;','  }','}','let c = new Compteur();','c.ajouter();','c.ajouter();','console.log(c.total);'],['2','1','0','Une erreur'],'Le total démarre à 0 et chaque appel de ajouter lui ajoute 1.'),
+  q('Que va afficher ce code ?',['class Chien {','  constructor(nom) {','    this.nom = nom;','  }','}','let a = new Chien("Rex");','let b = new Chien("Milou");','a.nom = "Max";','console.log(b.nom);'],['Milou','Max','Rex','Une erreur'],'a et b sont deux objets séparés. Renommer a ne touche pas b.'),
+  VCLASS(),
+  w('La classe `Chien` existe déjà. Écris la ligne qui crée un chien appelé Rex et le range dans la variable `rex`.',null,['let rex = new Chien("Rex");','const rex = new Chien("Rex");','var rex = new Chien("Rex");'],'`let` crée la variable, et `new Chien("Rex")` fabrique l’objet.')]},
+
+ {cards:[
+  {h:'Reconnaître un multiple',p:['Un nombre est un multiple de 3 si le reste de sa division par 3 vaut 0.'],code:['console.log(9 % 3);','console.log(10 % 3);','console.log(9 % 3 === 0);'],out:['0','1','true']},
+  {h:'Le programme complet',p:['L’ordre des questions compte : on teste **d’abord** le cas « multiple de 3 ET de 5 ». Sinon, 15 serait attrapé par le test « multiple de 3 » et afficherait seulement Fizz.','Résultat : 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz.'],code:['for (let i = 1; i <= 15; i++) {','  if (i % 3 === 0 && i % 5 === 0) {','    console.log("FizzBuzz");','  } else if (i % 3 === 0) {','    console.log("Fizz");','  } else if (i % 5 === 0) {','    console.log("Buzz");','  } else {','    console.log(i);','  }','}']}],
+ ex:[
+  q('Que va afficher ce code ?',['console.log(10 % 5 === 0);'],['true','false','0','2'],'10 = 2 × 5, le reste vaut 0. La comparaison 0 === 0 est vraie.'),
+  FZX[0](),FZX[1](),FZX[2](),
+  t('Complète le test « multiple de 3 ET de 5 ».',['if (i % 3 === 0 ___ i % 5 === 0) {','  console.log("FizzBuzz");','}'],['&&','||','!','%'],'Il faut que les deux tests soient vrais en même temps : c’est `&&`.'),
+  q('Dans cette version, le test du multiple de 3 est placé en premier. Que va-t-elle afficher ?',['let i = 15;','if (i % 3 === 0) {','  console.log("Fizz");','} else if (i % 3 === 0 && i % 5 === 0) {','  console.log("FizzBuzz");','} else {','  console.log(i);','}'],['Fizz','FizzBuzz','15','Fizz puis FizzBuzz'],'15 est un multiple de 3 : le premier test est vrai, et l’ordinateur ignore tous les suivants. C’est pour ça que le test le plus précis doit passer en premier.')]}
+],
+
+/* ---------------- PYTHON ---------------- */
+py:[
+ {cards:[
+  {h:'and, or et not',p:['En Python, on écrit les mots anglais : `and` veut dire ET, `or` veut dire OU, `not` veut dire NON.'],code:['age = 12','taille = 150','if age > 10 and taille > 140:','    print("Tu peux monter")'],out:['Tu peux monter']},
+  {h:'Les trois en action',p:['Chaque ligne donne un booléen : `True` ou `False`.'],code:['print(True and False)','print(True or False)','print(not True)'],out:['False','True','False']}],
+ ex:[
+  q('Que va afficher ce code ?',['print(True and False)'],['False','True','TrueFalse','Une erreur'],'ET : il faut que les deux côtés soient vrais. Ici, un des deux est faux.'),
+  q('Que va afficher ce code ?',['print(False or True)'],['True','False','FalseTrue','Une erreur'],'OU : il suffit qu’un seul côté soit vrai.'),
+  q('Que va afficher ce code ?',['print(not False)'],['True','False','not False','Une erreur'],'NON inverse la valeur : le contraire de faux, c’est vrai.'),
+  q('Que va afficher ce code ?',['age = 8','accompagne = True','if age >= 12 or accompagne:','    print("Entrée autorisée")','else:','    print("Entrée refusée")'],['Entrée autorisée','Entrée refusée','Les deux messages','Rien du tout'],'age >= 12 est faux, mais accompagne est vrai. Avec OU, un seul côté vrai suffit.'),
+  t('Il faut avoir au moins 10 ET être présent. Complète.',['if note >= 10 ___ present:'],['and','or','not','&&'],'En Python, ET s’écrit avec le mot `and`.'),
+  q('Que va afficher ce code ?',['pluie = False','if not pluie:','    print("On sort")','else:','    print("On reste")'],['On sort','On reste','Les deux messages','Rien du tout'],'pluie vaut False, donc not pluie vaut True : la condition est vraie.')]},
+
+ {cards:[
+  {h:'Trois outils à connaître',p:['`len(texte)` donne le nombre de caractères.','`.upper()` fabrique le même texte en majuscules (`.lower()` pour les minuscules).','Le mot `in` répond True si le premier texte se trouve à l’intérieur du second.'],code:['mot = "Bonjour"','print(len(mot))','print(mot.upper())','print("jour" in mot)'],out:['7','BONJOUR','True']},
+  {h:'Lire une seule lettre',p:['Comme pour les listes, chaque caractère a un index, et on compte à partir de 0.'],code:['mot = "Chat"','print(mot[0])','print(mot[3])'],out:['C','t']}],
+ ex:[
+  q('Que va afficher ce code ?',['print(len("chat"))'],['4','3','5','chat'],'Le mot chat contient 4 caractères.'),
+  q('Que va afficher ce code ?',['print("salut".upper())'],['SALUT','Salut','salut','Une erreur'],'`.upper()` passe toutes les lettres en majuscules.'),
+  q('Que va afficher ce code ?',['mot = "Python"','print(mot[0])'],['P','y','n','Python'],'L’index 0 est le premier caractère.'),
+  q('Que va afficher ce code ?',['print("cola" in "chocolat")'],['True','False','cola','3'],'Les lettres c, o, l, a se suivent bien à l’intérieur de chocolat.'),
+  q('Attention au piège. Que va afficher ce code ?',['mot = "bonjour"','mot.upper()','print(mot)'],['bonjour','BONJOUR','Bonjour','Une erreur'],'`.upper()` fabrique un nouveau texte mais ne modifie pas la variable. Il aurait fallu écrire mot = mot.upper()'),
+  t('Complète pour afficher le nombre de caractères.',['print(___(prenom))'],['len','length','size','count'],'En Python, la longueur s’obtient avec `len`, comme pour les listes.'),
+  w('La variable `nom` contient un texte. Écris la ligne qui l’affiche en majuscules.',null,['print(nom.upper())'],'On appelle `.upper()` sur la variable, à l’intérieur de print.')]},
+
+ {cards:[
+  {h:'Créer un dictionnaire',p:['On l’écrit entre accolades, avec des paires `clé: valeur` séparées par des virgules. Les clés qui sont du texte se mettent entre guillemets.','Pour lire une valeur : le nom du dictionnaire, puis la clé entre crochets.'],code:['ages = {"Léa": 25, "Tom": 30}','print(ages["Léa"])'],out:['25']},
+  {h:'Modifier et ajouter',p:['Si la clé existe déjà, sa valeur est remplacée. Sinon, la paire est ajoutée.','`len` donne le nombre de paires.','Attention : en Python, lire une clé qui n’existe pas provoque une erreur.'],code:['ages = {"Léa": 25}','ages["Léa"] = 26','ages["Tom"] = 30','print(ages["Léa"])','print(len(ages))'],out:['26','2']}],
+ ex:[
+  q('Que va afficher ce code ?',['p = {"nom": "Tom", "age": 30}','print(p["age"])'],['30','Tom','age','Une erreur'],'p["age"] va chercher la valeur rangée sous la clé "age".'),
+  q('Que va afficher ce code ?',['p = {"nom": "Tom", "age": 30}','p["age"] = 31','print(p["age"])'],['31','30','61','Une erreur'],'La deuxième ligne remplace la valeur rangée sous la clé "age".'),
+  t('Complète pour afficher Félix.',['chat = {"nom": "Félix", "age": 3}','print(chat[___])'],['"nom"','nom','"Félix"','0'],'Félix est rangé sous la clé "nom". La clé est un texte : il faut les guillemets.'),
+  q('Que va afficher ce code ?',['p = {"nom": "Tom"}','p["ville"] = "Lyon"','print(p["ville"])'],['Lyon','ville','Tom','Une erreur'],'La clé "ville" n’existait pas : elle est ajoutée à la deuxième ligne.'),
+  q('Que va afficher ce code ?',['stock = {"pommes": 4, "poires": 2}','stock["kiwis"] = 7','print(len(stock))'],['3','2','13','7'],'Il y avait 2 paires, on en ajoute une : `len` compte 3 paires.'),
+  q('Que se passe-t-il avec ce code ?',['p = {"nom": "Tom"}','print(p["age"])'],['Une erreur','0','None','Tom'],'La clé "age" n’existe pas. En Python, lire une clé absente provoque une erreur.'),
+  w('Écris la ligne qui affiche la valeur rangée sous la clé "score" du dictionnaire `joueur`.',null,['print(joueur["score"])'],'Le nom du dictionnaire, puis la clé entre crochets et guillemets.')]},
+
+ {cards:[
+  {h:'break : on arrête tout',p:['Quand i vaut 3, `break` arrête toute la boucle. Ni 3, ni 4, ni 5 ne sont affichés.'],code:['for i in range(1, 6):','    if i == 3:','        break','    print(i)'],out:['1','2']},
+  {h:'continue : on saute un tour',p:['Quand i vaut 3, `continue` saute la fin du tour : 3 n’est pas affiché. Mais la boucle reprend normalement avec 4.'],code:['for i in range(1, 6):','    if i == 3:','        continue','    print(i)'],out:['1','2','4','5']}],
+ ex:[
+  q('Que va afficher ce code ? (un nombre par ligne)',['for i in range(1, 6):','    if i == 4:','        break','    print(i)'],['1 2 3','1 2 3 4','1 2 3 5','1 2 3 4 5'],'À 4, break arrête toute la boucle avant l’affichage.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for i in range(1, 5):','    if i == 2:','        continue','    print(i)'],['1 3 4','1','1 2 3 4','3 4'],'À 2, continue saute l’affichage, puis la boucle reprend avec 3.'),
+  t('On veut arrêter complètement la boucle dès qu’on trouve 7.',['for n in nombres:','    if n == 7:','        ___'],['break','continue','stop','exit'],'`break` arrête la boucle. `continue` passerait seulement au tour suivant.'),
+  q('Que va afficher ce code ?',['noms = ["Ana", "Bob", "Cléo"]','for nom in noms:','    if nom == "Bob":','        break','    print(nom)'],['Ana','Ana Bob','Ana Cléo','Bob'],'Ana est affichée. Arrivé à Bob, break arrête la boucle : Cléo n’est jamais atteinte.'),
+  q('Combien de fois Hop va-t-il s’afficher ?',['for i in range(10):','    if i == 2:','        break','    print("Hop")'],['2 fois','3 fois','10 fois','1 fois'],'Hop s’affiche quand i vaut 0 puis 1. Quand i vaut 2, la boucle s’arrête.'),
+  v('Après un continue, la boucle s’arrête définitivement.',null,false,'Non. `continue` saute seulement le tour en cours. C’est `break` qui arrête la boucle.'),
+  w('Écris l’instruction qui arrête immédiatement une boucle.',null,['break'],'Un seul mot : `break`.')]},
+
+ {cards:[
+  {h:'try et except',p:['`try` (essayer) contient le code risqué. Si une erreur arrive, on saute immédiatement dans `except`.','`int("abc")` essaie de transformer le texte "abc" en nombre entier : c’est impossible, donc erreur. La ligne qui affiche "Après" n’est jamais exécutée.','Sans erreur, le bloc `except` est simplement ignoré.'],code:['try:','    print("Avant")','    nombre = int("abc")','    print("Après")','except:','    print("Oups, une erreur")','print("Le programme continue")'],out:['Avant','Oups, une erreur','Le programme continue']},
+  {h:'Préciser l’erreur attendue',p:['On peut écrire le nom de l’erreur après `except`. C’est une bonne habitude : on n’attrape alors que l’erreur qu’on avait prévue.','Deux erreurs courantes : `ValueError` (valeur impossible à convertir) et `ZeroDivisionError` (division par zéro).','À retenir aussi : `int("12")` transforme le texte "12" en nombre 12.'],code:['try:','    print(10 / 0)','except ZeroDivisionError:','    print("Division par zéro interdite")'],out:['Division par zéro interdite']}],
+ ex:[
+  q('Que va afficher ce code ? (une lettre par ligne)',['try:','    print("A")','    x = int("abc")','    print("B")','except ValueError:','    print("C")'],['A C','A B C','A B','C'],'A s’affiche, puis l’erreur fait sauter directement dans le except : B est ignoré.'),
+  q('Ici, aucune erreur. Que va afficher ce code ? (une lettre par ligne)',['try:','    print("A")','    x = int("12")','    print("B")','except ValueError:','    print("C")'],['A B','A B C','C','A C'],'"12" se transforme sans problème en nombre. Tout le try est exécuté et le except est ignoré.'),
+  t('Complète pour attraper l’erreur.',['try:','    x = int(texte)','___ ValueError:','    print("Raté")'],['except','catch','else','error'],'En Python, le bloc qui attrape l’erreur s’appelle `except`.'),
+  q('Que va afficher ce code ? (un mot par ligne)',['try:','    print(10 / 0)','except ZeroDivisionError:','    print("Erreur")','print("Fin")'],['Erreur Fin','Erreur','Fin','Rien du tout'],'L’erreur est attrapée, donc le programme ne plante pas et continue jusqu’à la dernière ligne.'),
+  q('Que va afficher ce code ?',['print(int("12") + 1)'],['13','121','12 + 1','Une erreur'],'`int("12")` donne le nombre 12, et 12 + 1 = 13.'),
+  v('Si aucune erreur ne se produit dans le try, le bloc except est ignoré.',null,true,'Oui. Le except ne sert que si quelque chose échoue.')]},
+
+ {cards:[
+  {h:'Créer une classe et un objet',p:['`__init__` (deux tirets bas de chaque côté) est exécuté automatiquement à la création de l’objet. Ici, il range le nom reçu dans l’objet.','`self` veut dire « cet objet-ci ». C’est toujours le premier paramètre des méthodes, mais on ne le donne pas quand on les appelle.','`Chien("Rex")` fabrique un nouvel objet. En Python, pas besoin du mot new.'],code:['class Chien:','    def __init__(self, nom):','        self.nom = nom','','    def aboyer(self):','        print(self.nom + " dit Wouf")','','rex = Chien("Rex")','rex.aboyer()'],out:['Rex dit Wouf']},
+  {h:'Un plan, plusieurs objets',p:['Chaque objet garde ses propres valeurs. Modifier l’un ne change pas l’autre.'],code:['class Chien:','    def __init__(self, nom):','        self.nom = nom','','rex = Chien("Rex")','milou = Chien("Milou")','print(rex.nom)','print(milou.nom)'],out:['Rex','Milou']}],
+ ex:[
+  q('Que va afficher ce code ?',['class Chat:','    def __init__(self, nom):','        self.nom = nom','','c = Chat("Félix")','print(c.nom)'],['Félix','nom','Chat','Une erreur'],'`__init__` a rangé "Félix" dans c.nom.'),
+  t('La classe Chien existe déjà. Complète pour créer un chien appelé Rex.',['rex = ___("Rex")'],['Chien','new Chien','class','chien'],'En Python, on écrit directement le nom de la classe, avec sa majuscule et sans le mot new.'),
+  t('Complète pour ranger le nom dans l’objet en cours de création.',['class Chien:','    def __init__(self, nom):','        ___.nom = nom'],['self','this','Chien','me'],'En Python, « cet objet-ci » s’écrit `self`.'),
+  q('Que va afficher ce code ?',['class Compteur:','    def __init__(self):','        self.total = 0','','    def ajouter(self):','        self.total = self.total + 1','','c = Compteur()','c.ajouter()','c.ajouter()','print(c.total)'],['2','1','0','Une erreur'],'Le total démarre à 0 et chaque appel de ajouter lui ajoute 1.'),
+  q('Que va afficher ce code ?',['class Chien:','    def __init__(self, nom):','        self.nom = nom','','a = Chien("Rex")','b = Chien("Milou")','a.nom = "Max"','print(b.nom)'],['Milou','Max','Rex','Une erreur'],'a et b sont deux objets séparés. Renommer a ne touche pas b.'),
+  VCLASS(),
+  w('La classe `Chien` existe déjà. Écris la ligne qui crée un chien appelé Rex et le range dans la variable `rex`.',null,['rex = Chien("Rex")'],'Le nom de la variable, le signe `=`, puis le nom de la classe avec "Rex" entre parenthèses.')]},
+
+ {cards:[
+  {h:'Reconnaître un multiple',p:['Un nombre est un multiple de 3 si le reste de sa division par 3 vaut 0.'],code:['print(9 % 3)','print(10 % 3)','print(9 % 3 == 0)'],out:['0','1','True']},
+  {h:'Le programme complet',p:['L’ordre des questions compte : on teste **d’abord** le cas « multiple de 3 ET de 5 ». Sinon, 15 serait attrapé par le test « multiple de 3 » et afficherait seulement Fizz.','Résultat : 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz.'],code:['for i in range(1, 16):','    if i % 3 == 0 and i % 5 == 0:','        print("FizzBuzz")','    elif i % 3 == 0:','        print("Fizz")','    elif i % 5 == 0:','        print("Buzz")','    else:','        print(i)']}],
+ ex:[
+  q('Que va afficher ce code ?',['print(10 % 5 == 0)'],['True','False','0','2'],'10 = 2 × 5, le reste vaut 0. La comparaison 0 == 0 est vraie.'),
+  FZX[0](),FZX[1](),FZX[2](),
+  t('Complète le test « multiple de 3 ET de 5 ».',['if i % 3 == 0 ___ i % 5 == 0:','    print("FizzBuzz")'],['and','or','not','%'],'Il faut que les deux tests soient vrais en même temps : c’est `and`.'),
+  q('Dans cette version, le test du multiple de 3 est placé en premier. Que va-t-elle afficher ?',['i = 15','if i % 3 == 0:','    print("Fizz")','elif i % 3 == 0 and i % 5 == 0:','    print("FizzBuzz")','else:','    print(i)'],['Fizz','FizzBuzz','15','Fizz puis FizzBuzz'],'15 est un multiple de 3 : le premier test est vrai, et l’ordinateur ignore tous les suivants. C’est pour ça que le test le plus précis doit passer en premier.')]}
+],
+
+/* ---------------- C# ---------------- */
+cs:[
+ {cards:[
+  {h:'&&, || et !',p:['`&&` veut dire ET. `||` veut dire OU. `!` veut dire NON et se place juste devant la valeur.'],code:['int age = 12;','int taille = 150;','if (age > 10 && taille > 140)','{','    Console.WriteLine("Tu peux monter");','}'],out:['Tu peux monter']},
+  {h:'Les trois en action',p:['Chaque ligne donne un booléen. Rappel : dans le code on écrit `true` et `false`, mais à l’affichage C# écrit True et False avec une majuscule.'],code:['Console.WriteLine(true && false);','Console.WriteLine(true || false);','Console.WriteLine(!true);'],out:['False','True','False']}],
+ ex:[
+  q('Que va afficher ce code ?',['Console.WriteLine(true && false);'],['False','True','TrueFalse','Une erreur'],'ET : il faut que les deux côtés soient vrais. Ici, un des deux est faux.'),
+  q('Que va afficher ce code ?',['Console.WriteLine(false || true);'],['True','False','FalseTrue','Une erreur'],'OU : il suffit qu’un seul côté soit vrai.'),
+  q('Que va afficher ce code ?',['Console.WriteLine(!false);'],['True','False','!false','Une erreur'],'NON inverse la valeur : le contraire de faux, c’est vrai.'),
+  q('Que va afficher ce code ?',['int age = 8;','bool accompagne = true;','if (age >= 12 || accompagne) {','    Console.WriteLine("Entrée autorisée");','} else {','    Console.WriteLine("Entrée refusée");','}'],['Entrée autorisée','Entrée refusée','Les deux messages','Rien du tout'],'age >= 12 est faux, mais accompagne est vrai. Avec OU, un seul côté vrai suffit.'),
+  t('Il faut avoir au moins 10 ET être présent. Complète.',['if (note >= 10 ___ present) {'],['&&','||','!','and'],'En C#, ET s’écrit `&&`.'),
+  q('Que va afficher ce code ?',['bool pluie = false;','if (!pluie) {','    Console.WriteLine("On sort");','} else {','    Console.WriteLine("On reste");','}'],['On sort','On reste','Les deux messages','Rien du tout'],'pluie vaut false, donc !pluie vaut true : la condition est vraie.')]},
+
+ {cards:[
+  {h:'Trois outils à connaître',p:['`.Length` donne le nombre de caractères.','`.ToUpper()` fabrique le même texte en majuscules (`.ToLower()` pour les minuscules).','`.Contains("...")` répond vrai si le texte contient ce morceau.'],code:['string mot = "Bonjour";','Console.WriteLine(mot.Length);','Console.WriteLine(mot.ToUpper());','Console.WriteLine(mot.Contains("jour"));'],out:['7','BONJOUR','True']},
+  {h:'Lire une seule lettre',p:['Comme pour les listes, chaque caractère a un index, et on compte à partir de 0.'],code:['string mot = "Chat";','Console.WriteLine(mot[0]);','Console.WriteLine(mot[3]);'],out:['C','t']}],
+ ex:[
+  q('Que va afficher ce code ?',['Console.WriteLine("chat".Length);'],['4','3','5','chat'],'Le mot chat contient 4 caractères.'),
+  q('Que va afficher ce code ?',['Console.WriteLine("salut".ToUpper());'],['SALUT','Salut','salut','Une erreur'],'`.ToUpper()` passe toutes les lettres en majuscules.'),
+  q('Que va afficher ce code ?',['string mot = "Python";','Console.WriteLine(mot[0]);'],['P','y','n','Python'],'L’index 0 est le premier caractère.'),
+  q('Que va afficher ce code ?',['Console.WriteLine("chocolat".Contains("cola"));'],['True','False','cola','3'],'Les lettres c, o, l, a se suivent bien à l’intérieur de chocolat.'),
+  q('Attention au piège. Que va afficher ce code ?',['string mot = "bonjour";','mot.ToUpper();','Console.WriteLine(mot);'],['bonjour','BONJOUR','Bonjour','Une erreur'],'`.ToUpper()` fabrique un nouveau texte mais ne modifie pas la variable. Il aurait fallu écrire mot = mot.ToUpper();'),
+  t('Complète pour afficher le nombre de caractères.',['Console.WriteLine(prenom.___);'],['Length','length','Size','Len'],'Pour un texte, c’est `.Length`, avec un L majuscule.'),
+  w('La variable `nom` contient un texte. Écris la ligne qui l’affiche en majuscules.',null,['Console.WriteLine(nom.ToUpper());'],'On appelle `.ToUpper()` sur la variable, à l’intérieur de Console.WriteLine.')]},
+
+ {cards:[
+  {h:'Créer un dictionnaire',p:['`Dictionary<string, int>` veut dire : les clés sont des textes, les valeurs sont des nombres entiers.','On range et on lit une valeur en écrivant la clé entre crochets.','`.Count` donne le nombre de paires.'],code:['Dictionary<string, int> ages = new Dictionary<string, int>();','ages["Léa"] = 25;','ages["Tom"] = 30;','Console.WriteLine(ages["Léa"]);','Console.WriteLine(ages.Count);'],out:['25','2'],tip:'Comme pour List : si C# ne reconnaît pas le mot Dictionary, ajoute tout en haut du fichier la ligne using System.Collections.Generic;'},
+  {h:'Modifier et vérifier',p:['Si la clé existe déjà, sa valeur est remplacée.','Attention : lire une clé qui n’existe pas provoque une erreur. `.ContainsKey("...")` permet de vérifier avant si la clé existe.'],code:['Dictionary<string, int> stock = new Dictionary<string, int>();','stock["pommes"] = 4;','stock["pommes"] = 6;','Console.WriteLine(stock["pommes"]);','Console.WriteLine(stock.ContainsKey("kiwis"));'],out:['6','False']}],
+ ex:[
+  q('Que va afficher ce code ?',['Dictionary<string, int> ages = new Dictionary<string, int>();','ages["Tom"] = 30;','Console.WriteLine(ages["Tom"]);'],['30','Tom','ages','Une erreur'],'ages["Tom"] va chercher la valeur rangée sous la clé "Tom".'),
+  q('Que va afficher ce code ?',['Dictionary<string, int> ages = new Dictionary<string, int>();','ages["Tom"] = 30;','ages["Tom"] = 31;','Console.WriteLine(ages["Tom"]);'],['31','30','61','Une erreur'],'La clé existe déjà : la troisième ligne remplace sa valeur.'),
+  t('Les clés sont des textes et les valeurs des nombres entiers. Complète le type des clés.',['Dictionary<___, int> ages = new Dictionary<___, int>();','ages["Léa"] = 25;'],['string','int','bool','text'],'Les clés comme "Léa" sont des textes : leur type est `string`.'),
+  q('Que va afficher ce code ?',['Dictionary<string, int> stock = new Dictionary<string, int>();','stock["pommes"] = 4;','stock["poires"] = 2;','stock["kiwis"] = 7;','Console.WriteLine(stock.Count);'],['3','2','13','7'],'On a rangé 3 paires : `.Count` les compte.'),
+  q('Que va afficher ce code ?',['Dictionary<string, int> stock = new Dictionary<string, int>();','stock["pommes"] = 4;','Console.WriteLine(stock.ContainsKey("poires"));'],['False','True','0','Une erreur'],'La clé "poires" n’a jamais été ajoutée : la réponse est faux, affiché False.'),
+  q('Que se passe-t-il avec ce code ?',['Dictionary<string, int> ages = new Dictionary<string, int>();','ages["Tom"] = 30;','Console.WriteLine(ages["Léa"]);'],['Une erreur','0','Rien du tout','Tom'],'La clé "Léa" n’existe pas. En C#, lire une clé absente provoque une erreur.'),
+  w('Écris la ligne qui affiche la valeur rangée sous la clé "score" du dictionnaire `joueur`.',null,['Console.WriteLine(joueur["score"]);'],'Le nom du dictionnaire, puis la clé entre crochets et guillemets.')]},
+
+ {cards:[
+  {h:'break : on arrête tout',p:['Quand i vaut 3, `break` arrête toute la boucle. Ni 3, ni 4, ni 5 ne sont affichés.'],code:['for (int i = 1; i <= 5; i++)','{','    if (i == 3)','    {','        break;','    }','    Console.WriteLine(i);','}'],out:['1','2']},
+  {h:'continue : on saute un tour',p:['Quand i vaut 3, `continue` saute la fin du tour : 3 n’est pas affiché. Mais la boucle reprend normalement avec 4.'],code:['for (int i = 1; i <= 5; i++)','{','    if (i == 3)','    {','        continue;','    }','    Console.WriteLine(i);','}'],out:['1','2','4','5']}],
+ ex:[
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (int i = 1; i <= 5; i++) {','    if (i == 4) {','        break;','    }','    Console.WriteLine(i);','}'],['1 2 3','1 2 3 4','1 2 3 5','1 2 3 4 5'],'À 4, break arrête toute la boucle avant l’affichage.'),
+  q('Que va afficher ce code ? (un nombre par ligne)',['for (int i = 1; i <= 4; i++) {','    if (i == 2) {','        continue;','    }','    Console.WriteLine(i);','}'],['1 3 4','1','1 2 3 4','3 4'],'À 2, continue saute l’affichage, puis la boucle reprend avec 3.'),
+  t('On veut arrêter complètement la boucle dès qu’on trouve 7.',['foreach (int n in nombres) {','    if (n == 7) {','        ___;','    }','}'],['break','continue','stop','exit'],'`break` arrête la boucle. `continue` passerait seulement au tour suivant.'),
+  q('Que va afficher ce code ?',['List<string> noms = new List<string> { "Ana", "Bob", "Cléo" };','foreach (string nom in noms) {','    if (nom == "Bob") {','        break;','    }','    Console.WriteLine(nom);','}'],['Ana','Ana Bob','Ana Cléo','Bob'],'Ana est affichée. Arrivé à Bob, break arrête la boucle : Cléo n’est jamais atteinte.'),
+  q('Combien de fois Hop va-t-il s’afficher ?',['for (int i = 0; i < 10; i++) {','    if (i == 2) {','        break;','    }','    Console.WriteLine("Hop");','}'],['2 fois','3 fois','10 fois','1 fois'],'Hop s’affiche quand i vaut 0 puis 1. Quand i vaut 2, la boucle s’arrête.'),
+  v('Après un continue, la boucle s’arrête définitivement.',null,false,'Non. `continue` saute seulement le tour en cours. C’est `break` qui arrête la boucle.'),
+  w('Écris l’instruction qui arrête immédiatement une boucle, sans oublier ce qui termine une instruction en C#.',null,['break;'],'Le mot `break`, suivi du point-virgule obligatoire.')]},
+
+ {cards:[
+  {h:'try et catch',p:['`try` (essayer) contient le code risqué. Si une erreur arrive, on saute immédiatement dans `catch` (attraper).','`int.Parse("abc")` essaie de transformer le texte "abc" en nombre entier : c’est impossible, donc erreur. La ligne qui affiche "Après" n’est jamais exécutée.','Sans erreur, le bloc `catch` est simplement ignoré.'],code:['try','{','    Console.WriteLine("Avant");','    int nombre = int.Parse("abc");','    Console.WriteLine("Après");','}','catch','{','    Console.WriteLine("Oups, une erreur");','}','Console.WriteLine("Le programme continue");'],out:['Avant','Oups, une erreur','Le programme continue']},
+  {h:'Préciser l’erreur attendue',p:['On peut écrire entre parenthèses le type d’erreur attendu. On n’attrape alors que cette erreur-là.','Deux erreurs courantes : `FormatException` (texte impossible à convertir) et `DivideByZeroException` (division d’un entier par zéro).','À retenir aussi : `int.Parse("12")` transforme le texte "12" en nombre 12.'],code:['int zero = 0;','try','{','    Console.WriteLine(10 / zero);','}','catch (DivideByZeroException)','{','    Console.WriteLine("Division par zéro interdite");','}'],out:['Division par zéro interdite']}],
+ ex:[
+  q('Que va afficher ce code ? (une lettre par ligne)',['try {','    Console.WriteLine("A");','    int x = int.Parse("abc");','    Console.WriteLine("B");','} catch (FormatException) {','    Console.WriteLine("C");','}'],['A C','A B C','A B','C'],'A s’affiche, puis l’erreur fait sauter directement dans le catch : B est ignoré.'),
+  q('Ici, aucune erreur. Que va afficher ce code ? (une lettre par ligne)',['try {','    Console.WriteLine("A");','    int x = int.Parse("12");','    Console.WriteLine("B");','} catch (FormatException) {','    Console.WriteLine("C");','}'],['A B','A B C','C','A C'],'"12" se transforme sans problème en nombre. Tout le try est exécuté et le catch est ignoré.'),
+  t('Complète pour attraper l’erreur.',['try {','    int x = int.Parse(texte);','} ___ (FormatException) {','    Console.WriteLine("Raté");','}'],['catch','except','else','error'],'En C#, le bloc qui attrape l’erreur s’appelle `catch`.'),
+  q('Que va afficher ce code ? (un mot par ligne)',['int zero = 0;','try {','    Console.WriteLine(10 / zero);','} catch (DivideByZeroException) {','    Console.WriteLine("Erreur");','}','Console.WriteLine("Fin");'],['Erreur Fin','Erreur','Fin','Rien du tout'],'L’erreur est attrapée, donc le programme ne plante pas et continue jusqu’à la dernière ligne.'),
+  q('Que va afficher ce code ?',['Console.WriteLine(int.Parse("12") + 1);'],['13','121','12 + 1','Une erreur'],'`int.Parse("12")` donne le nombre 12, et 12 + 1 = 13.'),
+  v('Si aucune erreur ne se produit dans le try, le bloc catch est ignoré.',null,true,'Oui. Le catch ne sert que si quelque chose échoue.')]},
+
+ {cards:[
+  {h:'Créer une classe et un objet',p:['`public string Nom;` déclare une donnée de l’objet (on dit un **champ**). `public` la rend accessible depuis l’extérieur de la classe.','La méthode qui porte le même nom que la classe est le **constructeur** : elle est exécutée automatiquement à la création de l’objet.','`new Chien("Rex")` fabrique un nouvel objet à partir de la classe.'],code:['Chien rex = new Chien("Rex");','rex.Aboyer();','','class Chien','{','    public string Nom;','','    public Chien(string nom)','    {','        Nom = nom;','    }','','    public void Aboyer()','    {','        Console.WriteLine(Nom + " dit Wouf");','    }','}'],out:['Rex dit Wouf'],tip:'Dans le fichier Program.cs, les classes se placent en bas, après les instructions du programme.'},
+  {h:'Un plan, plusieurs objets',p:['Chaque objet garde ses propres valeurs. Modifier l’un ne change pas l’autre.'],code:['Chien rex = new Chien("Rex");','Chien milou = new Chien("Milou");','Console.WriteLine(rex.Nom);','Console.WriteLine(milou.Nom);','','class Chien','{','    public string Nom;','','    public Chien(string nom)','    {','        Nom = nom;','    }','}'],out:['Rex','Milou']}],
+ ex:[
+  q('Que va afficher ce code ?',['Chat c = new Chat("Félix");','Console.WriteLine(c.Nom);','','class Chat','{','    public string Nom;','','    public Chat(string nom)','    {','        Nom = nom;','    }','}'],['Félix','Nom','Chat','Une erreur'],'Le constructeur a rangé "Félix" dans c.Nom.'),
+  t('Complète pour fabriquer un objet à partir de la classe Chien.',['Chien rex = ___ Chien("Rex");'],['new','class','make','create'],'`new` fabrique un nouvel objet à partir d’une classe.'),
+  t('Quel mot rend le champ accessible depuis l’extérieur de la classe ?',['class Chien','{','    ___ string Nom;','}'],['public','private','open','visible'],'`public` rend le champ accessible partout. `private` ferait exactement le contraire.'),
+  q('Que va afficher ce code ?',['Compteur c = new Compteur();','c.Ajouter();','c.Ajouter();','Console.WriteLine(c.Total);','','class Compteur','{','    public int Total = 0;','','    public void Ajouter()','    {','        Total = Total + 1;','    }','}'],['2','1','0','Une erreur'],'Le total démarre à 0 et chaque appel de Ajouter lui ajoute 1.'),
+  q('Que va afficher ce code ?',['Chien a = new Chien("Rex");','Chien b = new Chien("Milou");','a.Nom = "Max";','Console.WriteLine(b.Nom);','','class Chien','{','    public string Nom;','','    public Chien(string nom)','    {','        Nom = nom;','    }','}'],['Milou','Max','Rex','Une erreur'],'a et b sont deux objets séparés. Renommer a ne touche pas b.'),
+  VCLASS(),
+  w('La classe `Chien` existe déjà. Écris la ligne qui crée un chien appelé Rex et le range dans la variable `rex`.',null,['Chien rex = new Chien("Rex");','var rex = new Chien("Rex");','Chien rex = new("Rex");'],'Le type `Chien`, le nom de la variable, puis `new Chien("Rex")` et le point-virgule.')]},
+
+ {cards:[
+  {h:'Reconnaître un multiple',p:['Un nombre est un multiple de 3 si le reste de sa division par 3 vaut 0.'],code:['Console.WriteLine(9 % 3);','Console.WriteLine(10 % 3);','Console.WriteLine(9 % 3 == 0);'],out:['0','1','True']},
+  {h:'Le programme complet',p:['L’ordre des questions compte : on teste **d’abord** le cas « multiple de 3 ET de 5 ». Sinon, 15 serait attrapé par le test « multiple de 3 » et afficherait seulement Fizz.','Résultat : 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz.'],code:['for (int i = 1; i <= 15; i++)','{','    if (i % 3 == 0 && i % 5 == 0) {','        Console.WriteLine("FizzBuzz");','    } else if (i % 3 == 0) {','        Console.WriteLine("Fizz");','    } else if (i % 5 == 0) {','        Console.WriteLine("Buzz");','    } else {','        Console.WriteLine(i);','    }','}']}],
+ ex:[
+  q('Que va afficher ce code ?',['Console.WriteLine(10 % 5 == 0);'],['True','False','0','2'],'10 = 2 × 5, le reste vaut 0. La comparaison 0 == 0 est vraie, affichée True.'),
+  FZX[0](),FZX[1](),FZX[2](),
+  t('Complète le test « multiple de 3 ET de 5 ».',['if (i % 3 == 0 ___ i % 5 == 0) {','    Console.WriteLine("FizzBuzz");','}'],['&&','||','!','%'],'Il faut que les deux tests soient vrais en même temps : c’est `&&`.'),
+  q('Dans cette version, le test du multiple de 3 est placé en premier. Que va-t-elle afficher ?',['int i = 15;','if (i % 3 == 0) {','    Console.WriteLine("Fizz");','} else if (i % 3 == 0 && i % 5 == 0) {','    Console.WriteLine("FizzBuzz");','} else {','    Console.WriteLine(i);','}'],['Fizz','FizzBuzz','15','Fizz puis FizzBuzz'],'15 est un multiple de 3 : le premier test est vrai, et l’ordinateur ignore tous les suivants. C’est pour ça que le test le plus précis doit passer en premier.')]}
+]};
+for(const l in ADV)DATA[l].push(...ADV[l]);
+const BASE=9;
+
+const REAL={
+ js:['Ouvre ton navigateur (Chrome, Firefox ou Edge) sur un ordinateur.','Appuie sur la touche F12, puis clique sur l’onglet Console.','Tape une ligne de code, par exemple console.log("Bonjour"); puis appuie sur Entrée.'],
+ py:['Installe Python depuis le site officiel python.org.','Ouvre le programme IDLE, installé en même temps que Python.','Tape une ligne de code, par exemple print("Bonjour") puis appuie sur Entrée.'],
+ cs:['Installe le SDK .NET depuis le site officiel dotnet.microsoft.com.','Ouvre un terminal et tape : dotnet new console -o MonProjet','Entre dans le dossier avec : cd MonProjet','Écris ton code dans le fichier Program.cs, puis lance-le avec : dotnet run']
+};
+const KIND={q:'Choisis la bonne réponse',t:'Complète le trou',v:'Vrai ou faux',b:'Chasse au bug',o:'Remets dans l’ordre',w:'Écris le code'};
+
+/* ========================= MOTEUR ========================= */
+const app=document.getElementById('app');
+const KEY='declic-code-v1';
+let state={xp:0,done:{},streak:0,last:'',lang:'py',sound:false,best:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')state=Object.assign(state,s);}catch(e){}
+if(!LANGS[state.lang])state.lang='py';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+function h(tag,props,...kids){const e=document.createElement(tag);
+  if(props)for(const k in props){const val=props[k];
+    if(k==='class')e.className=val;else if(k==='html')e.innerHTML=val;
+    else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),val);
+    else if(val===true)e.setAttribute(k,'');else if(val!==false&&val!=null)e.setAttribute(k,val);}
+  for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)));}
+  return e;}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const rich=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+const KW={js:'let|const|if|else|for|while|function|return|of|true|false',py:'if|elif|else|for|while|in|def|return|True|False',cs:'int|double|string|bool|void|if|else|for|foreach|while|in|return|true|false|new'};
+function hl(code,lang){
+  const com=lang==='py'?'#.*$':'\\/\\/.*$';
+  const re=new RegExp('('+com+')|("(?:[^"\\\\]|\\\\.)*"|`[^`]*`)|\\b('+KW[lang]+')\\b|\\b(\\d+(?:\\.\\d+)?)\\b','gm');
+  return esc(code).replace(re,(m,c,s,k)=>'<span class="'+(c?'tc':s?'ts':k?'tk':'tn')+'">'+m+'</span>').replace(/___/g,'<span class="slot">?</span>');}
+// Compare une ligne tapée à la réponse attendue : guillemets typographiques, espaces hors texte et
+// point-virgule final (sauf en C#, où il est obligatoire) sont ignorés.
+function norm(s,lang){
+  s=String(s).replace(/[“”„«»]/g,'"').replace(/[‘’]/g,"'").trim();
+  if(lang!=='cs')s=s.replace(/'/g,'"');
+  if(lang==='js'&&s.indexOf('${')<0)s=s.replace(/`/g,'"');
+  if(lang!=='cs')s=s.replace(/;+\s*$/,'');
+  let out='',inStr=false;
+  for(const ch of s){if(ch==='"')inStr=!inStr;if(!inStr&&/\s/.test(ch))continue;out+=ch;}
+  return out;}
+const codeBox=(lines,lang)=>h('pre',{html:hl(lines.join('\n'),lang)});
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const level=()=>Math.floor(state.xp/100)+1;
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+function touchStreak(){const td=today();if(state.last===td)return;state.streak=state.last===yesterday()?state.streak+1:1;state.last=td;}
+const shownStreak=()=>(state.last===today()||state.last===yesterday())?state.streak:0;
+const starsTxt=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+
+let AC=null;
+function beep(type){if(!state.sound)return;try{
+  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  const seq={ok:[660,880],bad:[196,165],win:[523,659,784,1047]}[type];
+  seq.forEach((f,n)=>{const osc=AC.createOscillator(),g=AC.createGain(),at=AC.currentTime+n*0.09;
+    osc.type='triangle';osc.frequency.value=f;g.gain.setValueAtTime(0.0001,at);
+    g.gain.exponentialRampToValueAtTime(0.12,at+0.01);g.gain.exponentialRampToValueAtTime(0.0001,at+0.16);
+    osc.connect(g);g.connect(AC.destination);osc.start(at);osc.stop(at+0.18);});}catch(e){}}
+
+function confetti(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cv=document.getElementById('confetti'),cx=cv.getContext('2d');cv.hidden=false;
+  const W=cv.width=innerWidth,H=cv.height=innerHeight,cols=['#f2c230','#2c6cb5','#7440cf','#1fa35a','#e8553d'];
+  const ps=Array.from({length:110},()=>({x:W/2,y:H*0.35,vx:(Math.random()-0.5)*14,vy:-Math.random()*13-3,s:5+Math.random()*6,c:cols[Math.floor(Math.random()*5)],r:Math.random()*6}));
+  let n=0;(function tick(){cx.clearRect(0,0,W,H);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.42;p.r+=0.2;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);cx.restore();});
+    if(++n<130)requestAnimationFrame(tick);else{cx.clearRect(0,0,W,H);cv.hidden=true;}})();}
+
+let timer=null,S=null,view='home',deferredInstall=null;
+// Mode application : actif seulement quand la page est servie avec son manifeste (version installable).
+const PWA=!!document.querySelector('link[rel="manifest"]');
+const standalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+if(PWA&&'serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;if(view==='home')home();});
+window.addEventListener('appinstalled',()=>{deferredInstall=null;if(view==='home')home();});
+function screen(){if(timer){clearInterval(timer);timer=null;}app.className='lang-'+state.lang;app.replaceChildren();window.scrollTo(0,0);return app;}
+
+/* ---------- Un exercice (utilisé par les leçons et le sprint) ---------- */
+function renderEx(ex,lang,cb){
+  const box=h('div',{class:'panel'},h('p',{class:'kind'},KIND[ex.t]),h('h2',{class:'q',html:rich(ex.q)}));
+  if(ex.t==='q'||ex.t==='t'||ex.t==='v'){
+    let pre=null;if(ex.c){pre=codeBox(ex.c,lang);box.append(pre);}
+    const isV=ex.t==='v',good=isV?(ex.a?'Vrai':'Faux'):ex.o[0],opts=isV?['Vrai','Faux']:shuffle(ex.o.slice());
+    const wrap=h('div',{class:'opts'+(isV?' two':'')});
+    opts.forEach((op,n)=>{
+      const btn=h('button',{class:'opt'+(isV?'':' mono'),type:'button',onclick:()=>{
+        wrap.querySelectorAll('button').forEach(x=>{x.disabled=true;if(x.dataset.v===good)x.classList.add('good');});
+        if(op!==good)btn.classList.add('bad');
+        if(ex.t==='t'&&pre)pre.innerHTML=hl(ex.c.join('\n').split('___').join(good),lang);
+        cb(op===good,good,null);}},h('span',{class:'key'},n+1),h('span',null,op));
+      btn.dataset.v=op;wrap.append(btn);});
+    box.append(wrap);
+  }else if(ex.t==='b'){
+    const wrap=h('div',{class:'lines'});
+    ex.l.forEach((ln,n)=>{const btn=h('button',{class:'line',type:'button',onclick:()=>{
+        wrap.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===ex.a)x.classList.add('good');});
+        if(n!==ex.a)btn.classList.add('bad');cb(n===ex.a,'ligne '+(ex.a+1),null);}},
+      h('span',{class:'ln'},n+1),h('code',{html:hl(ln,lang)}));wrap.append(btn);});
+    box.append(h('p',{class:'hint'},'Touche la ligne qui pose problème.'),wrap);
+  }else if(ex.t==='w'){
+    if(ex.c)box.append(codeBox(ex.c,lang));
+    const inp=h('input',{class:'codein',id:'code-answer',type:'text',autocapitalize:'off',autocorrect:'off',autocomplete:'off',spellcheck:'false','aria-label':'Ta ligne de code',placeholder:'Écris ta ligne de code ici'});
+    const check=h('button',{class:'btn',type:'button',disabled:true},'Vérifier');
+    const keys=h('div',{class:'symkeys','aria-label':'Symboles à insérer'});
+    ['(',')','"','[',']','.',';','=','_'].forEach(ch=>keys.append(h('button',{class:'sym',type:'button','aria-label':'Insérer '+ch,onclick:()=>{
+      const len=inp.value.length,a=inp.selectionStart==null?len:inp.selectionStart,z=inp.selectionEnd==null?a:inp.selectionEnd;
+      inp.value=inp.value.slice(0,a)+ch+inp.value.slice(z);inp.focus();try{inp.setSelectionRange(a+1,a+1);}catch(e){}
+      check.disabled=!inp.value.trim();}},ch)));
+    const submit=()=>{if(check.disabled||inp.readOnly)return;
+      const val=norm(inp.value,lang),oks=ex.ok.map(x=>norm(x,lang)),ok=oks.includes(val);let note=null;
+      if(!ok){if(lang==='cs'&&oks.includes(norm(inp.value+';',lang)))note='Il manquait seulement le point-virgule à la fin.';
+        else if(oks.some(x=>x.toLowerCase()===val.toLowerCase()))note='Presque : vérifie les majuscules et les minuscules.';}
+      inp.readOnly=true;inp.classList.add(ok?'good':'bad');check.hidden=true;keys.hidden=true;cb(ok,ex.ok[0],null,note);};
+    inp.addEventListener('input',()=>{check.disabled=!inp.value.trim();});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
+    check.addEventListener('click',submit);
+    box.append(inp,keys,h('p',{class:'hint'},'Les espaces ne comptent pas. Les majuscules et les symboles, si.'),check);
+  }else{
+    let pool;do{pool=shuffle(ex.l.map(s=>({s})));}while(pool.every((p,n)=>p.s===ex.l[n]));
+    const picked=[];let locked=false;
+    const ans=h('div',{class:'lines answer'}),src=h('div',{class:'lines'});
+    const check=h('button',{class:'btn',type:'button',disabled:true},'Vérifier');
+    const draw=()=>{ans.replaceChildren();src.replaceChildren();
+      if(!picked.length)ans.append(h('p',{class:'hint'},'Touche les lignes ci-dessous dans le bon ordre. Touche une ligne placée pour la retirer.'));
+      picked.forEach((p,n)=>ans.append(h('button',{class:'line',type:'button',disabled:locked,onclick:()=>{picked.splice(n,1);draw();}},h('span',{class:'ln'},n+1),h('code',{html:hl(p.s,lang)}))));
+      pool.filter(p=>!picked.includes(p)).forEach(p=>src.append(h('button',{class:'line',type:'button',disabled:locked,onclick:()=>{picked.push(p);draw();}},h('code',{html:hl(p.s,lang)}))));
+      check.disabled=locked||picked.length!==pool.length;};
+    check.addEventListener('click',()=>{locked=true;const ok=picked.every((p,n)=>p.s===ex.l[n]);draw();ans.classList.add(ok?'good':'bad');check.hidden=true;cb(ok,null,ex.l);});
+    draw();box.append(ans,src,check);
+  }
+  return box;}
+
+/* ---------- Leçon ---------- */
+function startLesson(lang,idx){
+  view='play';state.lang=lang;save();
+  let queue,title;
+  if(idx==='mix'){
+    const all=DATA[lang].flatMap(L=>L.ex);
+    queue=shuffle(all.slice()).slice(0,10).map(e=>({k:'ex',e,first:true}));title='Défi mixte';
+  }else{
+    const L=DATA[lang][idx];
+    queue=[INTRO[idx],...L.cards].map(c=>({k:'card',c})).concat(L.ex.map(e=>({k:'ex',e,first:true})));title=TITLES[idx];
+  }
+  S={lang,idx,title,queue,total:queue.length,done:0,xp:0,combo:0,best:0,miss:0,lvl:level()};
+  step();}
+
+function lessonBar(){
+  const bar=h('div',{class:'bar',role:'progressbar','aria-label':'Avancement de la leçon','aria-valuemin':0,'aria-valuemax':S.total,'aria-valuenow':S.done},h('i',{style:'width:'+(100*S.done/S.total)+'%'}));
+  return h('div',{class:'lessonbar'},h('button',{class:'quit',type:'button',onclick:home},'← Quitter'),bar,h('span',{class:'combo'},S.combo>=2?'Série ×'+S.combo:''));}
+
+function step(){
+  const it=S.queue[0];if(!it)return finish();
+  const root=screen();root.append(lessonBar());
+  if(it.k==='card'){
+    const c=it.c,p=h('div',{class:'panel'},h('p',{class:'kind'},LANGS[S.lang]+' · '+S.title),h('h2',null,c.h));
+    c.p.forEach(x=>p.append(h('p',{html:rich(x)})));
+    if(c.code)p.append(codeBox(c.code,S.lang));
+    if(c.out)p.append(h('div',{class:'out'},c.out.join('\n')));
+    if(c.tip)p.append(h('p',{class:'tip',html:rich(c.tip)}));
+    const go=h('button',{class:'btn',type:'button',onclick:()=>{S.queue.shift();S.done++;step();}},'J’ai compris');
+    p.append(go);root.append(p);go.focus({preventScroll:true});
+  }else{
+    const panel=renderEx(it.e,S.lang,(ok,good,lines,note)=>{
+      let gain=0;
+      if(ok){
+        if(it.first){S.combo++;S.best=Math.max(S.best,S.combo);gain=10+Math.min(S.combo-1,5)*2;}else gain=5;
+        S.xp+=gain;state.xp+=gain;S.done++;S.queue.shift();save();beep('ok');
+      }else{S.combo=0;S.miss++;it.first=false;S.queue.push(S.queue.shift());beep('bad');}
+      root.replaceChild(lessonBar(),root.firstChild);
+      const fb=h('div',{class:'fb '+(ok?'ok':'ko'),role:'status'},h('h3',null,ok?'Bien joué ! +'+gain+' XP':'Pas tout à fait'));
+      if(note)fb.append(h('p',null,h('strong',null,note)));
+      if(!ok&&good)fb.append(h('p',null,'Bonne réponse : ',h('code',null,good)));
+      if(!ok&&lines)fb.append(h('p',null,'Le bon ordre :'),codeBox(lines,S.lang));
+      fb.append(h('p',{html:rich(it.e.w)}));
+      if(!ok)fb.append(h('p',{class:'small muted'},'Pas grave : cette question reviendra à la fin pour que tu la réussisses.'));
+      const go=h('button',{class:'btn',type:'button',onclick:step},'Continuer');
+      panel.append(fb,go);go.focus({preventScroll:true});go.scrollIntoView({block:'nearest',behavior:'smooth'});
+    });
+    root.append(panel);
+  }}
+
+function finish(){
+  const stars=S.miss===0?3:S.miss<=2?2:1,key=S.lang+'-'+S.idx;
+  state.done[key]=Math.max(state.done[key]||0,stars);touchStreak();save();beep('win');confetti();
+  const root=screen(),up=level()>S.lvl;
+  const nextIdx=S.idx==='mix'?null:(S.idx+1<TITLES.length?S.idx+1:'mix');
+  const p=h('div',{class:'panel end'},
+    h('p',{class:'kind'},LANGS[S.lang]+' · '+S.title),
+    h('div',{class:'stars','aria-label':stars+' étoiles sur 3'},starsTxt(stars)),
+    h('h2',null,stars===3?'Sans faute !':'Leçon terminée !'),
+    up?h('p',null,h('strong',null,'Tu passes au niveau '+level()+' !')):null,
+    h('div',{class:'stats'},
+      h('div',{class:'stat'},h('b',null,'+'+S.xp),h('span',null,'XP gagnés')),
+      h('div',{class:'stat'},h('b',null,'×'+S.best),h('span',null,'meilleure série')),
+      h('div',{class:'stat'},h('b',null,S.miss),h('span',null,S.miss>1?'erreurs corrigées':'erreur corrigée'))),
+    h('p',{class:'muted'},'Tu peux t’arrêter ici : ta progression est enregistrée. Une petite pause aide le cerveau à retenir.'));
+  const lang=S.lang;
+  const b1=nextIdx!==null?h('button',{class:'btn',type:'button',onclick:()=>startLesson(lang,nextIdx)},nextIdx==='mix'?'Tenter le défi mixte':'Leçon suivante : '+TITLES[nextIdx]):null;
+  p.append(h('div',{class:'lines',style:'width:100%'},b1,h('button',{class:'btn ghost',type:'button',onclick:home},'Retour à l’accueil')));
+  root.append(p);(b1||p.querySelector('.btn')).focus({preventScroll:true});}
+
+/* ---------- Sprint 60 secondes ---------- */
+function sprint(lang){
+  view='play';
+  const doneIdx=TITLES.map((_,i)=>i).filter(i=>state.done[lang+'-'+i]);
+  const from=doneIdx.length?doneIdx:[0];
+  let pool=[];const refill=()=>{pool=shuffle(from.flatMap(i=>DATA[lang][i].ex).filter(e=>e.t==='q'||e.t==='t'||e.t==='v'));};
+  let left=60,score=0,over=false;
+  const root=screen(),clock=h('span',{class:'timer','aria-label':'Secondes restantes'},'60 s'),sc=h('span',{class:'chip'},'Score 0');
+  const slot=h('div');
+  root.append(h('div',{class:'lessonbar'},h('button',{class:'quit',type:'button',onclick:home},'← Quitter'),h('span',{style:'flex:1'}),sc,clock),slot);
+  const nextQ=()=>{if(over)return;if(!pool.length)refill();const ex=pool.pop();
+    slot.replaceChildren(renderEx(ex,lang,(ok)=>{if(over)return;if(ok){score++;sc.textContent='Score '+score;beep('ok');}else beep('bad');setTimeout(nextQ,ok?450:1400);}));};
+  timer=setInterval(()=>{left--;clock.textContent=left+' s';if(left<=0){over=true;clearInterval(timer);timer=null;end();}},1000);
+  function end(){const best=state.best[lang]||0,rec=score>best;if(rec){state.best[lang]=score;}
+    const gain=score*3;state.xp+=gain;if(score>0)touchStreak();save();if(rec&&score>0){beep('win');confetti();}
+    const r=screen();r.append(h('div',{class:'panel end'},h('p',{class:'kind'},LANGS[lang]+' · Sprint 60 secondes'),
+      h('h2',null,rec&&score>0?'Nouveau record !':'Temps écoulé !'),
+      h('div',{class:'stats'},h('div',{class:'stat'},h('b',null,score),h('span',null,'bonnes réponses')),h('div',{class:'stat'},h('b',null,Math.max(best,score)),h('span',null,'ton record')),h('div',{class:'stat'},h('b',null,'+'+gain),h('span',null,'XP gagnés'))),
+      h('div',{class:'lines',style:'width:100%'},h('button',{class:'btn',type:'button',onclick:()=>sprint(lang)},'Rejouer'),h('button',{class:'btn ghost',type:'button',onclick:home},'Retour à l’accueil'))));}
+  nextQ();}
+
+/* ---------- Accueil ---------- */
+function home(){
+  view='home';S=null;const root=screen(),lang=state.lang;
+  const count=l=>TITLES.filter((_,i)=>state.done[l+'-'+i]).length;
+  const st=shownStreak();
+  const sound=h('button',{class:'chip btnlike',type:'button','aria-pressed':String(state.sound),onclick:()=>{state.sound=!state.sound;save();beep('ok');home();}},'Son : '+(state.sound?'activé':'coupé'));
+  root.append(h('header',{class:'top'},h('span',{class:'brand'},h('b',null,'{ }'),'Déclic Code'),h('span',{class:'chip'},'Série : '+st+(st>1?' jours':' jour')),sound));
+  root.append(h('div',null,h('h1',null,'Apprends à coder, 3 minutes à la fois'),h('p',{class:'muted',style:'margin-top:8px'},'Une seule idée par écran, une explication courte, puis tu joues tout de suite. Tu peux t’arrêter après chaque leçon.')));
+  root.append(h('div',{class:'xp'},h('div',{class:'row'},h('span',null,'Niveau '+level()),h('span',null,(state.xp%100)+' / 100 XP')),h('div',{class:'bar'},h('i',{style:'width:'+(state.xp%100)+'%'}))));
+
+  const langs=h('div',{class:'langs',role:'group','aria-label':'Choix du langage'});
+  Object.keys(LANGS).forEach(l=>langs.append(h('button',{class:'langbtn lang-'+l,type:'button','aria-pressed':String(l===lang),onclick:()=>{state.lang=l;save();home();}},h('strong',null,LANGS[l]),h('span',null,count(l)+' / '+TITLES.length+' leçons'))));
+  root.append(langs);
+
+  const nextI=TITLES.findIndex((_,i)=>!state.done[lang+'-'+i]);
+  root.append(nextI>=0
+    ?h('button',{class:'btn cta',type:'button',onclick:()=>startLesson(lang,nextI)},(count(lang)?'Continuer':'Commencer')+' : '+TITLES[nextI],h('small',null,'Leçon '+(nextI+1)+' en '+LANGS[lang]+' · environ 3 minutes'))
+    :h('button',{class:'btn cta',type:'button',onclick:()=>startLesson(lang,'mix')},'Toutes les leçons sont finies : défi mixte',h('small',null,'10 questions tirées au hasard en '+LANGS[lang])));
+
+  const mkPath=(from,to,label)=>{const path=h('div',{class:'path'});
+    for(let i=from;i<to;i++){const s=state.done[lang+'-'+i]||0;
+      path.append(h('button',{class:'lesson'+(s?' done':'')+(i===nextI?' next':''),type:'button',onclick:()=>startLesson(lang,i)},
+        h('span',{class:'num'},i+1),h('span',{class:'name'},TITLES[i]),
+        s?h('span',{class:'stars','aria-label':s+' étoiles sur 3'},starsTxt(s)):h('span',{class:'meta'},i===nextI?'À toi de jouer':'À faire')));}
+    root.append(h('div',null,h('p',{class:'label',style:'margin-bottom:8px'},label),path));};
+  mkPath(0,BASE,'Les bases · '+LANGS[lang]);
+  mkPath(BASE,TITLES.length,'Aller plus loin · '+LANGS[lang]);
+
+  const sm=state.done[lang+'-mix']||0;
+  root.append(h('div',null,h('p',{class:'label',style:'margin-bottom:8px'},'Jeux bonus'),h('div',{class:'rowbtns'},
+    h('button',{class:'lesson',type:'button',onclick:()=>startLesson(lang,'mix')},h('span',{class:'name'},'Défi mixte',h('br'),h('span',{class:'small muted',style:'font-weight:400'},'10 questions au hasard')),sm?h('span',{class:'stars'},starsTxt(sm)):null),
+    h('button',{class:'lesson',type:'button',onclick:()=>sprint(lang)},h('span',{class:'name'},'Sprint 60 secondes',h('br'),h('span',{class:'small muted',style:'font-weight:400'},'Record : '+(state.best[lang]||0)))))));
+
+  const ol=h('ol');REAL[lang].forEach(x=>ol.append(h('li',null,x)));
+  root.append(h('details',null,h('summary',null,'Essayer du vrai code '+LANGS[lang]+' sur ton ordinateur'),ol));
+  root.append(h('details',null,h('summary',null,'Comment ça marche ?'),h('ul',null,
+    h('li',null,'Chaque leçon commence par 3 ou 4 cartes d’explication, puis 5 à 7 mini-jeux.'),
+    h('li',null,'Si tu te trompes, la bonne réponse est expliquée et la question revient à la fin. On ne perd jamais.'),
+    h('li',null,'Les bonnes réponses à la suite font monter ta série et rapportent plus d’XP.'),
+    h('li',null,'Les trois langages suivent les mêmes '+TITLES.length+' leçons : ce que tu apprends dans l’un te sert dans les autres.'),
+    h('li',null,'Dans la partie « Aller plus loin », tu commences à écrire toi-même des lignes de code.'),
+    h('li',null,'Ta progression est gardée sur cet appareil.'))));
+  root.append(h('details',null,h('summary',null,'Et après les '+TITLES.length+' leçons ?'),h('ul',null,
+    h('li',null,'Refais le parcours dans un deuxième langage : les idées sont les mêmes, seule l’écriture change.'),
+    h('li',null,'Écris de vrais petits programmes sur un ordinateur : un jeu « devine le nombre », un convertisseur de monnaie, une liste de courses.'),
+    h('li',null,'JavaScript sert surtout à créer des sites web. Python est très utilisé pour automatiser des tâches et analyser des données. C# sert notamment à créer des jeux vidéo avec Unity et des logiciels Windows.'))));
+  if(PWA&&!standalone()){
+    const box=h('details',{open:!!deferredInstall},h('summary',null,'Installer l’application sur ton téléphone'));
+    if(deferredInstall)box.append(h('button',{class:'btn',type:'button',style:'margin-top:12px',onclick:()=>{const ev=deferredInstall;deferredInstall=null;ev.prompt();home();}},'Installer maintenant'));
+    box.append(h('ul',null,
+      h('li',null,'Android (Chrome) : touche le menu ⋮ en haut à droite, puis « Ajouter à l’écran d’accueil » ou « Installer l’application ».'),
+      h('li',null,'iPhone (Safari) : touche le bouton Partager (le carré avec une flèche vers le haut), puis « Sur l’écran d’accueil ».'),
+      h('li',null,'L’icône apparaît ensuite avec tes autres applications, et le jeu fonctionne même sans internet.')));
+    root.append(box);}
+
+  let armed=false;const reset=h('button',{class:'quit',type:'button',onclick:()=>{if(!armed){armed=true;reset.textContent='Touche encore une fois pour tout effacer';return;}
+    state={xp:0,done:{},streak:0,last:'',lang,sound:state.sound,best:{}};save();home();}},'Effacer ma progression');
+  root.append(h('div',{style:'text-align:center'},reset));}
+
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;const n=parseInt(e.key,10);if(!n)return;
+  const btns=app.querySelectorAll('.opts .opt:not(:disabled)');if(btns[n-1]){e.preventDefault();btns[n-1].click();}});
+
+home();
+</script>
+
+</body>
+</html>
