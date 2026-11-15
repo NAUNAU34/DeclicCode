@@ -11,8 +11,8 @@ Une application pour apprendre **JavaScript, Python et C#** par leçons de 3 min
 1. Sur GitHub, ouvre ce dépôt puis **Settings → Pages**.
 2. Dans « Build and deployment », choisis **Deploy from a branch**.
 3. Choisis la branche qui contient ce fichier et le dossier **/docs**, puis clique sur **Save**.
-4. Attends une à deux minutes : GitHub affiche l'adresse du site, de la forme
-   `https://naunau34.github.io/NOM-DU-DEPOT/` (remplace NOM-DU-DEPOT par le nom de ce dépôt).
+4. Attends une à deux minutes, le temps que GitHub publie le site à l'adresse
+   **https://naunau34.github.io/DeclicCode/**
 5. Ouvre cette adresse sur ton téléphone :
    - **Android (Chrome)** : menu ⋮ → « Ajouter à l'écran d'accueil » ou « Installer l'application ».
    - **iPhone (Safari)** : bouton Partager → « Sur l'écran d'accueil ».
